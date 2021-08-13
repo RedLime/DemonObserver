@@ -19,4 +19,5 @@ You can start the bot with `npm start`. However, there are a few steps before we
 That's all! BUT, Since there are no demon in your database initially, notifications will not be updated until all demon are updated in the database.
 
 ## Special Thanks
-[GDColon](https://github.com/GDColon) for Demon Face Images in [GDBrowser](https://github.com/GDColon/GDBrowser), [Hann](https://www.youtube.com/channel/UCLIuKE0JGD3fycqMJRFf1Fg)
+- [GDColon](https://github.com/GDColon) for Demon Face Images in [GDBrowser](https://github.com/GDColon/GDBrowser),
+- [Hann](https://www.youtube.com/channel/UCLIuKE0JGD3fycqMJRFf1Fg)
