@@ -1,5 +1,5 @@
-node_modules/
-vscode/
+node_modules/*
+.vscode/
 config/settings.json
 .eslintrc.json
 .setup
