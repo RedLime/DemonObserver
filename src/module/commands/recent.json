@@ -1,0 +1,34 @@
+{
+    "name": "recent",
+    "type": 1,
+    "description": "Check the recent all Demons archive log.",
+    "options": [
+        {
+            "name": "filter",
+            "description": "Archive option filter",
+            "type": 3,
+            "choices": [
+                {
+                    "name": "All",
+                    "value": "all"
+                },
+                {
+                    "name": "Rated",
+                    "value": "AWARDED"
+                },
+                {
+                    "name": "Changed Difficulty",
+                    "value": "RERATED"
+                },
+                {
+                    "name": "Updated",
+                    "value": "UPDATED"
+                },
+                {
+                    "name": "Unrated",
+                    "value": "UNRATED"
+                }
+            ]
+        }
+    ]
+}

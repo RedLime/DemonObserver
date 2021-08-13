@@ -1,0 +1,90 @@
+{
+    "name": "config",
+    "description": "Configurations a bot.",
+    "type": 1,
+    "options": [
+        {
+            "name": "help",
+            "description": "Check Config Help",
+            "type": 1,
+            "options": []
+        },
+        {
+            "name": "list",
+            "description": "Show all server's configurations.",
+            "type": 1,
+            "options": []
+        },
+        {
+            "name": "mention",
+            "description": "Set the role to be mention when the Demon notification is updated.",
+            "type": 2,
+            "options": [
+                {
+                    "name": "status",
+                    "description": "Check current notification mention role",
+                    "type": 1
+                },
+                {
+                    "name": "enable",
+                    "description": "Enable mentions",
+                    "type": 1,
+                    "options": [
+                        {
+                            "name": "role",
+                            "description": "Role to be mention",
+                            "required": true,
+                            "type": 8
+                        }
+                    ]
+                },
+                {
+                    "name": "disable",
+                    "description": "Disable mentions",
+                    "type": 1
+                }
+            ]
+        },
+        {
+            "name": "language",
+            "description": "Change Language Settings",
+            "type": 1,
+            "options": [
+                {
+                    "name": "set",
+                    "description": "Change bot's language to English",
+                    "type": 4,
+                    "choices": [
+                        {
+                            "name": "English",
+                            "value": 0
+                        },
+                        {
+                            "name": "한국어",
+                            "value": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "adminrole",
+            "description": "Sets the configurable admin roles.",
+            "type": 1,
+            "options": [
+                {
+                    "name": "role",
+                    "description": "Change to Admin Role",
+                    "type": 8,
+                    "required": true
+                }
+            ]
+        },
+        {
+            "name": "notification",
+            "description": "Set the channel to update the demon rating change notification",
+            "type": 1,
+            "options": []
+        }
+    ]
+}

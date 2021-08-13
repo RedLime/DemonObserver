@@ -1,0 +1,30 @@
+{
+    "name": "demons",
+    "description": "Shows the current number of demons",
+    "type": 1,
+    "options": [
+        {
+            "name": "type",
+            "description": "Set the more Demon information to show.",
+            "type": 4,
+            "choices": [
+                {
+                    "name": "Number changes",
+                    "value": 0
+                },
+                {
+                    "name": "Creator Points",
+                    "value": 1
+                },
+                {
+                    "name": "Length",
+                    "value": 2
+                },
+                {
+                    "name": "GD Version",
+                    "value": 3
+                }
+            ]
+        }
+    ]
+}

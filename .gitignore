@@ -1,0 +1,6 @@
+node_modules/
+vscode/
+config/settings.json
+.eslintrc.json
+.setup
+.package-lock.json

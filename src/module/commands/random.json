@@ -1,0 +1,66 @@
+{
+    "name": "random",
+    "type": 1,
+    "description": "Random choose demon. (for fun)",
+    "options": [
+        {
+            "name": "filter",
+            "description": "Random demon filter",
+            "type": 3,
+            "choices": [
+                {
+                    "name": "All",
+                    "value": "all"
+                },
+                {
+                    "name": "Easy Demon",
+                    "value": "easy"
+                },
+                {
+                    "name": "Medium Demon",
+                    "value": "medium"
+                },
+                {
+                    "name": "Hard Demon",
+                    "value": "hard"
+                },
+                {
+                    "name": "Insane Demon",
+                    "value": "insane"
+                },
+                {
+                    "name": "Extreme Demon",
+                    "value": "extreme"
+                }
+            ]
+        },
+        {
+            "name": "draw",
+            "description": "Random demon draw times",
+            "type": 4
+        },
+        {
+            "name": "demonlist",
+            "description": "Demons in DemonList filter",
+            "type": 3,
+            "choices": [
+                {
+                    "name": "Pointercrate - All",
+                    "value": "pointercrate-all"
+                },
+                {
+                    "name": "Pointercrate - Main List",
+                    "value": "pointercrate-main"
+                },
+                {
+                    "name": "Pointercrate - Extended List",
+                    "value": "pointercrate-extended"
+                },
+                {
+                    "name": "Pointercrate - Legacy List",
+                    "value": "pointercrate-legacy"
+                }
+            ]
+        }
+    ]
+}

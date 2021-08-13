@@ -1,0 +1,73 @@
+{
+    "name": "challenge",
+    "description": "Did you like some challenge with Demons?",
+    "type": 1,
+    "options": [
+        {
+            "name": "create",
+            "description": "Create new Demon challenge",
+            "type": 1,
+            "options": [
+                {
+                    "name": "skips",
+                    "description": "Specifies the number to skips.",
+                    "type": 4
+                },
+                {
+                    "name": "filter",
+                    "description": "Challenge Demon filter",
+                    "type": 4,
+                    "choices": [
+                        {
+                            "name": "All",
+                            "value": 1
+                        },
+                        {
+                            "name": "Easy Demon",
+                            "value": 3
+                        },
+                        {
+                            "name": "Medium Demon",
+                            "value": 4
+                        },
+                        {
+                            "name": "Hard Demon",
+                            "value": 0
+                        },
+                        {
+                            "name": "Insane Demon",
+                            "value": 5
+                        },
+                        {
+                            "name": "Extreme Demon",
+                            "value": 6
+                        },
+                        {
+                            "name": "Pointercrate DemonList",
+                            "value": 2
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "name": "current",
+            "description": "Load challenge you were playing.",
+            "type": 1,
+            "options": []
+        },
+        {
+            "name": "info",
+            "description": "Show information of the challenge",
+            "type": 1,
+            "options": [
+                {
+                    "name": "id",
+                    "description": "select challenge by id",
+                    "required": true,
+                    "type": 4
+                }
+            ]
+        }
+    ]
+}
