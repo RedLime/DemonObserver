@@ -309,6 +309,8 @@ async function run() {
             }
 
             debug.log("GDServer", `Level - ${notification.demon.id}(${notification.demon.name}) was ${notificationType}. (to ${serverCount} servers)`);
+        } else if (notification && !isReady) {
+            debug.log("GDServer", `Level - ${notification.demon.id}(${notification.demon.name}) was Added.`);
         }
 
         setTimeout(() => {
