@@ -1,0 +1,19 @@
+{
+    "bot_token": "token",
+    "mysql_host": "localhost",
+    "mysql_port": 3306,
+    "mysql_database": "demonobserver",
+    "mysql_user": "root",
+    "mysql_password": "password",
+    "search_level_size": 10,
+    "gd_server_search_period": 15,
+    "gd_server_search_period_random": 5,
+    "icon_url": "https://i.imgur.com/VUDP3fT.png",
+    "server_url": "https://discord.gg/3BgJEjkRPS",
+    "invite_url": "https://discord.com/api/oauth2/authorize?client_id=860749953697710080&permissions=2147904512&scope=bot%20applications.commands",
+    "emoji_next_page": "861423467256479754",
+    "emoji_prev_page": "861423467362385940",
+    "log_channel": "0",
+    "debug": false,
+    "command_guild_only": "0"
+}
