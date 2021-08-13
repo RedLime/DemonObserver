@@ -3,4 +3,5 @@ node_modules/*
 config/settings.json
 .eslintrc.json
 .setup
+.ready
 .package-lock.json

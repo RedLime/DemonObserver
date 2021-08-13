@@ -26,6 +26,7 @@ var debug: Debug, interactionManager: InteractionManager
 const notifyStacks: Array<Notification> = [];
 var demonCount = 0, currentGDPage = 0, currentUnPage = 0, currentPCPage = 0;
 var isSetup = fs.existsSync(path.join(path.resolve(), `/.setup`));
+var isReady = fs.existsSync(path.join(path.resolve(), `/.ready`));
 
 
 //For Start
@@ -140,9 +141,10 @@ async function run() {
 
     //caching GD Demons
     const cachingDemons = async () => {
-        const clearPage = async () => {
+        const clearPage = () => {
             currentGDPage = 0;
-            //await checkUnrateDemons();
+            isReady = true;
+            fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
         }
         
         let saveCount = 0;
@@ -152,7 +154,7 @@ async function run() {
     
         //Error or Empty
         if (rawData.total == 0 || rawData.result == "error") {
-            await clearPage();
+            clearPage();
             cachingDemons();
             return;
         }
@@ -202,7 +204,7 @@ async function run() {
 
         debug.log("GDServer", `A ${result.length} levels were updated, ${saveCount} levels were saved.`, null, false);
     
-        if (result.length < config.search_level_size) await clearPage();
+        if (result.length < config.search_level_size) clearPage();
         else currentGDPage++;
     
         setTimeout(() => {
@@ -291,7 +293,7 @@ async function run() {
     const sendNotifications = async () => {
         const notification = notifyStacks.shift();
 
-        if (notification) {
+        if (notification && isReady) {
             let serverCount = 0;
             const notificationType = notification.getType() == NotificationType.RERATED ? notification.demon.getDifficultyText() : notification.getType();
 
