@@ -96,6 +96,7 @@ async function run() {
         cachingPointercrate();
         cachingUnrates();
         sendNotifications();
+        printGuildsInfo();
 
         //Setup Bot Interactions
         Commands.registerCommands(client);
