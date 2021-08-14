@@ -178,11 +178,13 @@ async function run() {
                 updateList.push(target);
 
                 if (element.difficulty != target.difficulty) {
+                    saveCount++
                     const notifiData: RerateNotification = new RerateNotification(target, element.difficulty, target.difficulty)
                     notifyStacks.push(notifiData);
                     await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`, `data2`) VALUES (?, ?, ?, ?)', [target.id, NotificationType.RERATED, element.difficulty, target.difficulty]);
                 }
                 if (element.level_version != target.version) {
+                    saveCount++
                     const notifiData: UpdateNotification = new UpdateNotification(target, element.level_version, target.version)
                     notifyStacks.push(notifiData);
                     await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UPDATED, target.version]);
@@ -301,7 +303,7 @@ async function run() {
         } else {
             currentPCPage++;
         }
-        
+
         setTimeout(() => {
             cachingPointercrate();
         }, 1000 * 60 * 30);
