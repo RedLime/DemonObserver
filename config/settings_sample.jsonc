@@ -30,8 +30,10 @@
     "emoji_next_page": "861423467256479754",
     "emoji_prev_page": "861423467362385940",
 
-    //Bot Command Log Channel ID
-    "log_channel": "0",
+    //Bot Log Channel ID
+    "bot_log_channel": "0",
+    //Commands Log Channel ID
+    "command_log_channel": "0",
 
     //For Debug. DO NOT CHANGE THIS
     "debug": false,

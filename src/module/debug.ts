@@ -17,7 +17,7 @@ export default class Debug {
             console.log("");
         }
         if (send && this.client) {
-            const channel = this.client.channels.cache.get(settings.log_channel) as TextChannel;
+            const channel = this.client.channels.cache.get(settings.bot_log_channel) as TextChannel;
             if (channel && Utils.isCanSend(this.client, channel)) {
                 channel.send(`[${this.dateFormat(new Date())}] (${prefix}) ${context}`);
                 if (obj) {
