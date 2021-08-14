@@ -7,6 +7,7 @@ You can start the bot with `npm start`. However, there are a few steps before we
 
 ## Setup 
 - Install [Node.js](https://nodejs.org/) version 16.6 or higher.
+- Download DemonObserver on [Release Page](https://github.com/RedLime/DemonObserver/releases/tag/1.0.1).
 - Run the `npm install` command. Install what you need.
 - Create a MySQL database for Demon Observer.
 - Change settings like DB and Discord Bot Token in [settings.config](https://github.com/RedLime/DemonObserver/blob/master/config/settings.json).
