@@ -143,8 +143,6 @@ async function run() {
     const cachingDemons = async () => {
         const clearPage = () => {
             currentGDPage = 0;
-            isReady = true;
-            fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
         }
         
         let saveCount = 0;
@@ -231,6 +229,12 @@ async function run() {
             //Error or Empty
             if (rawData.total == 0 || rawData.result == "error") {
                 clearPage();
+                if (rawData.result == "success" && !isReady) {
+                    setTimeout(() => {
+                        isReady = true;
+                        fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
+                    }, (config.gd_server_search_period + config.gd_server_search_period_random)*config.search_level_size*1000);
+                }
                 cachingUnrates();
                 return;
             }
@@ -260,7 +264,15 @@ async function run() {
                 debug.log("GDServer", `A ${unrateList.length} levels were deleted.`, null, false);
             }
         
-            if (result.length < config.search_level_size) clearPage();
+            if (result.length < config.search_level_size) {
+                clearPage();
+                if (!isReady) {
+                    setTimeout(() => {
+                        isReady = true;
+                        fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
+                    }, (config.gd_server_search_period + config.gd_server_search_period_random)*config.search_level_size*1000);
+                }
+            }
             else currentUnPage++;
         }
         
