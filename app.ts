@@ -171,7 +171,7 @@ async function run() {
         const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id, difficulty, level_version FROM `gd_demons` WHERE level_id IN ('+ result.map(level => level.id).join(",") +')');
 
         //Level Update Check
-        levels.forEach(async element => {
+        for await (const element of levels) {
             const idx = result.findIndex(level => level.id == element.level_id);
             if (idx != -1) {
                 const target = result[idx];
@@ -190,9 +190,9 @@ async function run() {
                     await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UPDATED, target.version]);
                 }
             }
-        });
+        }
 
-        result.forEach(async element => {
+        for await (const element of result) {
             if (levels.findIndex(level => level.level_id == element.id) == -1) {
                 demonCount++;
                 const notifiData: AwardNotification = new AwardNotification(element, demonCount);
@@ -200,7 +200,8 @@ async function run() {
                 await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.id, NotificationType.AWARDED, element.difficulty]);
                 saveCount++
             }
-        });
+        }
+        
         let updateQuery = result.map(element => `'${element.id}', '${element.difficulty}', '${element.name}', '${element.description.replace(/'/gi, "＇").replace(/\\/gi, "")}', '${element.version}', '${element.author}', '${element.playerID}', '${element.length}', '${element.downloads}', '${element.likes}', '${element.gameVersion}', '${element.coins}', '${element.verifiedCoins ? 1 : 0}', '${element.cp}'`).join('), (');
 
         await connection.query(
@@ -256,7 +257,7 @@ async function run() {
             const unrateList: Array<Demon> = [];
 
             //Level Unrate Check
-            levels.forEach(async element => {
+            for await (const element of levels) {
                 const idx = result.findIndex(level => level.id == element.level_id);
                 if (idx != -1) {
                     const target = result[idx];
@@ -267,7 +268,7 @@ async function run() {
                         await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UNRATED, ""]);
                     }
                 }
-            });
+            }
 
             if (unrateList.length) {
                 await connection.query(
