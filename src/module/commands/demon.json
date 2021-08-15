@@ -1,0 +1,17 @@
+{
+    "name": "level",
+    "type": 1,
+    "description": "Check the Demon's rate status log.",
+    "options": [
+        {
+            "name": "id",
+            "description": "select level by id",
+            "type": 4
+        },
+        {
+            "name": "name",
+            "description": "select level by name",
+            "type": 3
+        }
+    ]
+}

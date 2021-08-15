@@ -163,7 +163,7 @@ async function loadLevelInfo(interaction: UserInteraction, level: RowDataPacket,
         .addField(await interaction.localeMessage("DIFFICULTY"), Demon.getDifficultyFullText(level.difficulty))
         .addField(await interaction.localeMessage("VERSION"), "GD "+Demon.getIngameVersion(+level.ingame_version), true)
         .addField(await interaction.localeMessage("LEVEL_VERSION"), level.level_version.toString(), true)
-        .addField(await interaction.localeMessage("ARCHIVE"), rawLogs)
+        .addField(await interaction.localeMessage("ARCHIVE"), rawLogs || await interaction.localeMessage("NOTHING"))
         .setFooter(`${await interaction.localeMessage("ARCHIVE")} Page : ${totalPage == 0 ? "-" : (page+1)+"/"+totalPage}`)
         .setTimestamp();
     if (level.rank_pointercrate) {

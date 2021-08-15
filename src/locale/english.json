@@ -3,7 +3,7 @@
     "MESSAGE_THANKS_FOR_USING": "Thanks for using DemonObserver!",
     "MESSAGE_INVAILD_PERMISSION": "You havn't permission. Only administrators can use it.",
     "MESSAGE_INVAILD_PERMISSION_ROLE": "You havn't permission. Only administrators or <@&{0}> can use it.",
-    "MESSAGE_COMMANDS_HELP": "`/about | /help` - Check about bot and commands\n`/demons` - Shows the number of all demons.\n`/random [filter(optional)]` - Pick a demon by random. :star_struck:\n`/recent [filter(optional)]` - Show all recent archive records.\n`/level <id|name>` - Shows details and archives of the Demon.\n`/challenge` - Start Demon challenge.\n`/config` - /config help",
+    "MESSAGE_COMMANDS_HELP": "`/about | /help` - Check about bot and commands\n`/demons` - Shows the number of all demons.\n`/random [filter(optional)]` - Pick a demon by random. :star_struck:\n`/recent [filter(optional)]` - Show all recent archive records.\n`/level | /demon <id|name>` - Shows details and archives of the Demon.\n`/challenge` - Start Demon challenge.\n`/config` - /config help",
     "MESSAGE_CURRENT_CONFIGURATION": "Current Configurations",
     "MESSAGE_CURRENT_LANGUAGE": "Current Language",
     "MESSAGE_SUCCESS_CHANGE_LANGUAGE": "The language has been changed successfully!",
