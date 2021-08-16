@@ -1,5 +1,6 @@
 import request from 'request-promise';
 import Demon from '../classes/demon';
+import config from '../../config/settings.json';
 
 export interface GDFilter {
     secret?: string
@@ -39,7 +40,7 @@ export default class Notify {
         try {
             const options = {
                 method: 'POST',
-                uri: 'http://boomlings.com/database/getGJLevels21.php',
+                uri: config.gd_server_search_url,
                 form: filter
             };
     

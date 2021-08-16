@@ -1,6 +1,9 @@
 {
     //Upload all images in the resources folder to server emoji
     //And insert emojis with id them in emojis.json.
+    
+    //Target Geometry Dash Server URL for Searching levels.
+    "gd_server_search_url": "http://boomlings.com/database/getGJLevels21.php",
 
     //Discord Bot Token
     "bot_token": "token",

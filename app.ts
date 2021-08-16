@@ -16,6 +16,8 @@ import Commands from './src/module/command';
 
 //Config
 import config from './config/settings.json';
+
+//Class
 import Demon from './src/classes/demon';
 import { Notification, NotificationType, RerateNotification, UpdateNotification, AwardNotification, UnrateNotification } from './src/classes/notification';
 import InteractionManager from './src/module/interaction';
