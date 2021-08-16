@@ -25,7 +25,7 @@ export class LevelCommand extends CommandUserInteraction {
         
         const [resultDemon] = <RowDataPacket[][]> await this.connection.query(
             `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons
-             WHERE ${level_id ? `level_id = ${level_id}` : level_name ? `level_name LIKE '${level_name}'` : "level_id = 0"} LIMIT 10`
+             WHERE ${level_id ? `level_id = ${level_id}` : level_name ? `TRIM(TRAILING FROM level_name) LIKE TRIM(TRAILING FROM '${level_name}')` : "level_id = 0"} LIMIT 10`
         );
 
         if (!resultDemon.length) {
@@ -62,7 +62,7 @@ export class LevelCommand extends CommandUserInteraction {
                         label: `ID : ${d.level_id}`,
                         description: `${d.level_name} by ${d.author_name}`,
                         emoji: this.emojis.convertToID(this.emojis[Demon.getRateEmojiText(+d.difficulty, +d.creator_points)]),
-                        value: d.level_id
+                        value: ""+d.level_id
                     };
                     levelOpt.push(levelMenu);
                 });
