@@ -7,7 +7,7 @@ import mysql, { RowDataPacket } from 'mysql2/promise'
 export interface Notification {
     demon: Demon
     getType(): NotificationType
-    convertEmbed(connection: mysql.Connection, guild_id: string | number): Promise<Discord.MessageEmbed>
+    convertEmbed(connection: mysql.Pool, guild_id: string | number): Promise<Discord.MessageEmbed>
 }
 export class AwardNotification implements Notification {
     constructor(public demon: Demon, public count: number) {}
@@ -16,7 +16,7 @@ export class AwardNotification implements Notification {
         return NotificationType.AWARDED
     }
 
-    public async convertEmbed(connection: mysql.Connection, guild_id: string | number) {
+    public async convertEmbed(connection: mysql.Pool, guild_id: string | number) {
         return new Discord.MessageEmbed()
         .setAuthor("DemonObserver", config.icon_url)
         .setTitle(await Locale.getLocaleMessageGuild(connection, guild_id, "MESSAGE_NEW_AWARDED_DEMON", [this.count]))
@@ -34,7 +34,7 @@ export class UnrateNotification implements Notification {
         return NotificationType.UNRATED
     }
 
-    public async convertEmbed(connection: mysql.Connection, guild_id: string | number) {
+    public async convertEmbed(connection: mysql.Pool, guild_id: string | number) {
         return new Discord.MessageEmbed()
         .setAuthor("DemonObserver", config.icon_url)
         .setTitle(await Locale.getLocaleMessageGuild(connection, guild_id, "MESSAGE_UNRATED_DEMON"))
@@ -50,7 +50,7 @@ export class UpdateNotification implements Notification {
         return NotificationType.UPDATED
     }
 
-    public async convertEmbed(connection: mysql.Connection, guild_id: string | number) {
+    public async convertEmbed(connection: mysql.Pool, guild_id: string | number) {
         return new Discord.MessageEmbed()
         .setAuthor("DemonObserver", config.icon_url)
         .setTitle(await Locale.getLocaleMessageGuild(connection, guild_id, "MESSAGE_UPDATED_DEMON"))
@@ -67,7 +67,7 @@ export class RerateNotification implements Notification {
         return NotificationType.RERATED
     }
 
-    public async convertEmbed(connection: mysql.Connection, guild_id: string | number) {
+    public async convertEmbed(connection: mysql.Pool, guild_id: string | number) {
         return new Discord.MessageEmbed()
         .setAuthor("DemonObserver", config.icon_url)
         .setTitle(await Locale.getLocaleMessageGuild(connection, guild_id, "MESSAGE_CHANGE_DIFFICULTY_RATE_DEMON"))

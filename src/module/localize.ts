@@ -28,25 +28,14 @@ export function getLocaleMessage(language: LocaleType, raw: string, args: Array<
     return text;
 }
 
-/**
- * 번역된 메세지를 반출합니다.
- * @param {number} language 서버 컨피그
- * @param {string} raw 메세지 코드
- * @param {Array} args 대체 메세지
- * @returns {string} 번역된 메세지
- */
-export async function getLocaleMessageGuild(connection: mysql.Connection, guild_id: string | number, raw: string, args: Array<any> = []): Promise<string> {
+
+export async function getLocaleMessageGuild(connection: mysql.Pool, guild_id: string | number, raw: string, args: Array<any> = []): Promise<string> {
     const language = await getLocale(connection, guild_id);
     return getLocaleMessage(language, raw, args);
 }
 
-/**
- * 해당 길드의 설정 언어를 불러옵니다.
- * @param {mysql.Connection} connection 서버 컨피그
- * @param {*} guild_id 서버(길드) ID 
- * @returns {number}
- */
-export async function getLocale(connection: mysql.Connection, guild_id: string | number): Promise<LocaleType> {
+
+export async function getLocale(connection: mysql.Pool, guild_id: string | number): Promise<LocaleType> {
     if (localesData[guild_id] != null) {
         return localesData[guild_id];
     } else {
@@ -60,19 +49,14 @@ export async function getLocale(connection: mysql.Connection, guild_id: string |
     }
 }
 
-/**
- * 해당 길드의 설정 언어를 업데이트 합니다.
- * @param {mysql.Connection} connection 서버 컨피그
- * @param {*} guild_id 서버(길드) ID 
- * @param {LocaleType} language 언어
- */
-export async function updateLocale(connection: mysql.Connection, guild_id: string | number, language: LocaleType) {
+
+export async function updateLocale(connection: mysql.Pool, guild_id: string | number, language: LocaleType) {
     await connection.query(`UPDATE guild_settings SET language = ${language} WHERE guild_id = '${guild_id}'`);
     localesData[guild_id] = language;
 }
 
 
-export async function getTimeAgoLocaleGuild(connection: mysql.Connection, guild_id: string | number, date: number): Promise<string> {
+export async function getTimeAgoLocaleGuild(connection: mysql.Pool, guild_id: string | number, date: number): Promise<string> {
     const language = await getLocale(connection, guild_id);
     return getTimeAgoLocale(language, date);
 }

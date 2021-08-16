@@ -6,7 +6,6 @@
     "mysql_database": "demonobserver",
     "mysql_user": "root",
     "mysql_password": "password",
-    "search_level_size": 10,
     "gd_server_search_period": 15,
     "gd_server_search_period_random": 5,
     "icon_url": "https://i.imgur.com/VUDP3fT.png",

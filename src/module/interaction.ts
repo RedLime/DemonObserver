@@ -1,5 +1,5 @@
 import { ButtonInteraction, Client, CommandInteraction, SelectMenuInteraction, TextChannel } from 'discord.js'
-import { Connection } from 'mysql2/promise'
+import { Pool } from 'mysql2/promise'
 import AboutCommand from './interactions/about'
 import config from '../../config/settings.json';
 import sampleEmojis from '../../config/emojis.json';
@@ -52,7 +52,7 @@ const emojis = {
 
 export default class InteractionManager {
 
-    constructor(private client: Client, private connection: Connection) {}
+    constructor(private client: Client, private connection: Pool) {}
 
     async onCommand(interaction: CommandInteraction) {
         // Command log

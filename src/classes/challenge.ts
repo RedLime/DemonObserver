@@ -1,21 +1,21 @@
 import { Snowflake } from "discord.js";
-import { Connection, FieldPacket, ResultSetHeader, RowDataPacket } from "mysql2/promise";
+import { Pool, FieldPacket, ResultSetHeader, RowDataPacket } from "mysql2/promise";
 import Demon from "./demon";
 
 
 export default class Challenge {
     levels: string[];
-    constructor(public connection: Connection, public id: number, public owner: Snowflake, public status: ChallengeStatus, levels: string, public filter: ChallengeFilter, public currSkips: number, public maxSkips: number, public createDate: Date, public score: number) {
+    constructor(public connection: Pool, public id: number, public owner: Snowflake, public status: ChallengeStatus, levels: string, public filter: ChallengeFilter, public currSkips: number, public maxSkips: number, public createDate: Date, public score: number) {
         this.levels = levels ? levels.split(",") : [];
     }
 
-    static async create(connection: Connection, user: Snowflake, filter: ChallengeFilter, skips: number = 0) {
+    static async create(connection: Pool, user: Snowflake, filter: ChallengeFilter, skips: number = 0) {
         const [result] = <[ResultSetHeader, FieldPacket[]]> await connection.query(
             `INSERT INTO challenges (demon_filter, user, max_skips) VALUES ('${filter}', '${user}', '${skips}')`
         );
         return new Challenge(connection, +result.insertId, user, ChallengeStatus.PROCESS, "", filter, 0, skips, new Date(), 0);
     }
-    static async findById(connection: Connection, id: number) {
+    static async findById(connection: Pool, id: number) {
         const [result] = <RowDataPacket[][]> await connection.query(
             `SELECT * FROM challenges WHERE challenge_id = '${id}'`
         );
@@ -25,7 +25,7 @@ export default class Challenge {
             return undefined;
         }
     }
-    static async findCurrentByUser(connection: Connection, user: Snowflake) {
+    static async findCurrentByUser(connection: Pool, user: Snowflake) {
         const [result] = <RowDataPacket[][]> await connection.query(
             `SELECT * FROM challenges WHERE user = '${user}' AND status = '${ChallengeStatus.PROCESS}'`
         );

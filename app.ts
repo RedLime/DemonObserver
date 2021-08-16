@@ -36,7 +36,7 @@ async function run() {
     /*-------------------------------------*/
 
     //Mysql
-    const connection = await mysql.createConnection({
+    const connection = mysql.createPool({
         host: config.mysql_host,
         user: config.mysql_user,
         password: config.mysql_password,
@@ -151,7 +151,7 @@ async function run() {
         let saveCount = 0;
         
         //request GD Server
-        const rawData = await Notify.getGJLevels({diff: -2, page: currentGDPage, type: 4, count: config.search_level_size});
+        const rawData = await Notify.getGJLevels({diff: -2, page: currentGDPage, type: 4});
     
         //Error or Empty
         if (rawData.total == 0 || rawData.result == "error") {
@@ -160,7 +160,7 @@ async function run() {
                 setTimeout(() => {
                     isReady = true;
                     fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
-                }, (config.gd_server_search_period + config.gd_server_search_period_random)*config.search_level_size*1000);
+                }, (config.gd_server_search_period + config.gd_server_search_period_random)*10000);
             }
             cachingDemons();
             return;
@@ -214,13 +214,13 @@ async function run() {
 
         debug.log("GDServer", `A ${result.length} levels were updated, ${saveCount} levels were saved.`, null, false);
     
-        if (result.length < config.search_level_size) {
+        if (result.length < 10) {
             clearPage();
             if (rawData.result == "success" && !isReady) {
                 setTimeout(() => {
                     isReady = true;
                     fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
-                }, (config.gd_server_search_period + config.gd_server_search_period_random)*config.search_level_size*1000);
+                }, (config.gd_server_search_period + config.gd_server_search_period_random)*10000);
             }
         }
         else currentGDPage++;
@@ -239,12 +239,12 @@ async function run() {
             currentUnPage = 0;
         }
         
-        const inteval = (demonCount/config.search_level_size)*(config.gd_server_search_period + config.gd_server_search_period_random)*10;
+        const inteval = (demonCount/10)*(config.gd_server_search_period + config.gd_server_search_period_random)*10;
         const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id FROM `gd_demons` WHERE last_update < DATE_SUB(NOW(), INTERVAL '+inteval+' SECOND)');
         
         if (levels && levels.length) {
             //request GD Server
-            const rawData = await Notify.getGJLevels({page: currentGDPage, type: 10, str: levels.map(lvl => lvl.level_id).join(","), count: config.search_level_size});
+            const rawData = await Notify.getGJLevels({page: currentGDPage, type: 10, str: levels.map(lvl => lvl.level_id).join(",")});
 
             //Error or Empty
             if (rawData.total == 0 || rawData.result == "error") {
@@ -278,7 +278,7 @@ async function run() {
                 debug.log("GDServer", `A ${unrateList.length} levels were deleted.`, null, false);
             }
         
-            if (result.length < config.search_level_size) {
+            if (result.length < 10) {
                 clearPage();
             }
             else currentUnPage++;
@@ -287,7 +287,7 @@ async function run() {
     
         setTimeout(() => {
             cachingUnrates();
-        }, (demonCount/config.search_level_size)*(config.gd_server_search_period + config.gd_server_search_period_random)*10000);
+        }, (demonCount/10)*(config.gd_server_search_period + config.gd_server_search_period_random)*10000);
     }
 
     /*-------------------------------------*/

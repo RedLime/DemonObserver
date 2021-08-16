@@ -16,7 +16,6 @@
     "mysql_password": "password",
 
     //How many levels to search in the GD server and at what period. If searching too much or too often, you will ip-banned from the GD servers.
-    "search_level_size": 10,
     "gd_server_search_period": 15,          // By seconds
     "gd_server_search_period_random": 5,    // Result period = Period Time + Random Time
 
