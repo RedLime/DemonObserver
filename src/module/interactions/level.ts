@@ -53,7 +53,7 @@ export class LevelCommand extends CommandUserInteraction {
         } else {
             if (resultDemon.length > 1) {
                 const levelOptions = new MessageSelectMenu()
-                    .setCustomId(this.interaction.user.id+'||level:name_list')
+                    .setCustomId(this.interaction.user.id+'||level:level_list')
                     .setPlaceholder(await this.localeMessage("MESSAGE_SELECT_LEVEL"));
                 
                 const levelOpt: MessageSelectOptionData[] = [];
