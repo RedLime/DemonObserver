@@ -84,7 +84,7 @@ export default class Notify {
         try {
             const options = {
                 method: 'GET',
-                uri: 'https://pointercrate.com/api/v2/demons/listed/?limit=100&after='+rank,
+                uri: 'https://pointercrate.com/api/v2/demons/listed/?limit=100&after='+(rank*100),
             };
     
             let rawData = await request(options);
