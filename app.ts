@@ -94,8 +94,8 @@ async function run() {
         await refresh();
 
         //Caching / Notifications
-        //cachingDemons();
-        //cachingUnrates();
+        cachingDemons();
+        cachingUnrates();
         cachingPointercrate();
         sendNotifications();
         printGuildsInfo();
