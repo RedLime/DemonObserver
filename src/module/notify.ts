@@ -12,6 +12,15 @@ export interface GDFilter {
     type?: number
     str?: string
     count?: number
+    len?: string
+    total?: number
+    uncompleted?: number
+    onlyCompleted?: number
+    featured?: number
+    original?: number
+    twoPlayer?: number
+    coins?: number
+    epic?: number
 }
 
 export interface GDAuthor {
@@ -36,6 +45,15 @@ export default class Notify {
         filter.gameVersion = 21;
         filter.binaryVersion = 35;
         filter.gdw = 0;
+        filter.len = "-";
+        filter.total = 0;
+        filter.uncompleted = 0;
+        filter.onlyCompleted = 0;
+        filter.featured = 0;
+        filter.original = 0;
+        filter.twoPlayer = 0;
+        filter.coins = 0;
+        filter.epic = 0;
     
         try {
             const options = {

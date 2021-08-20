@@ -245,6 +245,7 @@ async function loadNotificationConfig(interaction: UserInteraction, serverConfig
     const isSelect = (demonType: NotificationDetail) => isEnableNotification(selectScore, demonType);
     const checkChannel = (demonType: NotificationDetail) => serverConfig["channel_"+demonType];
     const checkEnableMark = async (demonType: NotificationDetail) => await interaction.localeMessage(serverConfig["enable_"+demonType] ? "ENABLED" : "DISABLED");
+    const me = channel?.guild.members.cache.get(interaction.interaction.client.user?.id || "") 
 
     if (!interaction.interaction.guild) {
         return {embeds: [new MessageEmbed()
@@ -263,10 +264,10 @@ async function loadNotificationConfig(interaction: UserInteraction, serverConfig
             +`**`+checkSelectMark('extreme')+"Extreme Demon"+`**:　${await checkEnableMark("extreme")} | <#${checkChannel("extreme")}>\n`
             +`**`+checkSelectMark('updated')+await interaction.localeMessage("UPDATED_DEMON")+`**:　${await checkEnableMark("updated")} | <#${checkChannel("updated")}>`)
         .addField(await interaction.localeMessage("SELECTED_CHANNEL"), 
-            channel && interaction.interaction.guild.me ? 
-            `<#${channel.id}>` + (channel.permissionsFor(interaction.interaction.guild.me).has(["SEND_MESSAGES", "EMBED_LINKS"]) 
+            channel && me ? 
+            `<#${channel.id}>` + ((channel.permissionsFor(me).has(["SEND_MESSAGES", "EMBED_LINKS"]) 
                 ? "" 
-                : `\n⚠**${await interaction.localeMessage('WARNING')}**: ${await interaction.localeMessage('MESSAGE_NOTIFICATIONS_INVAILD_PERMISSION', [interaction.interaction.guild.me.nickname || interaction.interaction.user.username])}`) 
+                : `\n⚠**${await interaction.localeMessage('WARNING')}**: ${await interaction.localeMessage('MESSAGE_NOTIFICATIONS_INVAILD_PERMISSION', [me.nickname || interaction.interaction.user.username])}`))
             : await interaction.localeMessage("NOTHING"));
     
     const ratedDemon: MessageSelectOptionData = {
@@ -345,9 +346,11 @@ async function loadNotificationConfig(interaction: UserInteraction, serverConfig
     })
 
     const selectChannels: MessageSelectOptionData[] = []
-    channels.slice(page*25, (page+1)*25).forEach((value) => {
+    channels.sort((a, b) => {
+        return a.rawPosition - b.rawPosition
+    }).slice(page*25, (page+1)*25).forEach((value, index) => {
         selectChannels.push({
-            label: `#${value.name.length > 24 ? value.name.substring(0, 22) + ".." : value.name}`,
+            label: `#${value.name.length > 40 ? value.name.substring(0, 40) + ".." : value.name}`,
             value: value.id,
             emoji: channel == value ? "✅" : undefined,
             default: channel == value

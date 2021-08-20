@@ -94,9 +94,9 @@ async function run() {
         await refresh();
 
         //Caching / Notifications
-        cachingDemons();
+        //cachingDemons();
+        //cachingUnrates();
         cachingPointercrate();
-        cachingUnrates();
         sendNotifications();
         printGuildsInfo();
 
@@ -144,88 +144,87 @@ async function run() {
 
     //caching GD Demons
     const cachingDemons = async () => {
-        const clearPage = () => {
-            currentGDPage = 0;
-        }
-        
-        let saveCount = 0;
-        
-        //request GD Server
-        const rawData = await Notify.getGJLevels({diff: -2, page: currentGDPage, type: 4});
-    
-        //Error or Empty
-        if (rawData.total == 0 || rawData.result == "error") {
-            clearPage();
-            if (rawData.result == "success" && !isReady) {
-                setTimeout(() => {
-                    isReady = true;
-                    fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
-                }, (config.gd_server_search_period + config.gd_server_search_period_random)*10000);
+        setTimeout(async () => {
+            const clearPage = () => {
+                currentGDPage = 0;
             }
-            cachingDemons();
-            return;
-        }
-    
-        const result = rawData.levels;
-        debug.log("GDServer", `A ${result.length} levels were cached. (Page : ${currentGDPage})`, null, false);
+            
+            let saveCount = 0;
+            
+            //request GD Server
+            const rawData = await Notify.getGJLevels({diff: -2, page: currentGDPage, type: 4, str: "",});
         
-        const updateList: Array<Demon> = [];
-        const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id, difficulty, level_version FROM `gd_demons` WHERE level_id IN ('+ result.map(level => level.id).join(",") +')');
-
-        //Level Update Check
-        for await (const element of levels) {
-            const idx = result.findIndex(level => level.id == element.level_id);
-            if (idx != -1) {
-                const target = result[idx];
-                updateList.push(target);
-
-                if (element.difficulty != target.difficulty) {
-                    saveCount++
-                    const notifiData: RerateNotification = new RerateNotification(target, element.difficulty, target.difficulty)
-                    notifyStacks.push(notifiData);
-                    await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`, `data2`) VALUES (?, ?, ?, ?)', [target.id, NotificationType.RERATED, element.difficulty, target.difficulty]);
+            //Error or Empty
+            if (rawData.total == 0 || rawData.result == "error") {
+                clearPage();
+                if (rawData.result == "success" && !isReady) {
+                    setTimeout(() => {
+                        isReady = true;
+                        fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
+                    }, (config.gd_server_search_period + config.gd_server_search_period_random)*10000);
                 }
-                if (element.level_version != target.version) {
-                    saveCount++
-                    const notifiData: UpdateNotification = new UpdateNotification(target, element.level_version, target.version)
-                    notifyStacks.push(notifiData);
-                    await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UPDATED, target.version]);
+                cachingDemons();
+                return;
+            }
+        
+            const result = rawData.levels;
+            debug.log("GDServer", `A ${result.length} levels were cached. (Page : ${currentGDPage})`, null, false);
+            
+            const updateList: Array<Demon> = [];
+            const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id, difficulty, level_version FROM `gd_demons` WHERE level_id IN ('+ result.map(level => level.id).join(",") +')');
+    
+            //Level Update Check
+            for await (const element of levels) {
+                const idx = result.findIndex(level => level.id == element.level_id);
+                if (idx != -1) {
+                    const target = result[idx];
+                    updateList.push(target);
+    
+                    if (element.difficulty != target.difficulty) {
+                        saveCount++
+                        const notifiData: RerateNotification = new RerateNotification(target, element.difficulty, target.difficulty)
+                        notifyStacks.push(notifiData);
+                        await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`, `data2`) VALUES (?, ?, ?, ?)', [target.id, NotificationType.RERATED, element.difficulty, target.difficulty]);
+                    }
+                    if (element.level_version != target.version) {
+                        saveCount++
+                        const notifiData: UpdateNotification = new UpdateNotification(target, element.level_version, target.version)
+                        notifyStacks.push(notifiData);
+                        await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UPDATED, target.version]);
+                    }
                 }
             }
-        }
-
-        for await (const element of result) {
-            if (levels.findIndex(level => level.level_id == element.id) == -1) {
-                demonCount++;
-                const notifiData: AwardNotification = new AwardNotification(element, demonCount);
-                notifyStacks.push(notifiData);
-                await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.id, NotificationType.AWARDED, element.difficulty]);
-                saveCount++
+    
+            for await (const element of result) {
+                if (levels.findIndex(level => level.level_id == element.id) == -1) {
+                    demonCount++;
+                    const notifiData: AwardNotification = new AwardNotification(element, demonCount);
+                    notifyStacks.push(notifiData);
+                    await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.id, NotificationType.AWARDED, element.difficulty]);
+                    saveCount++
+                }
             }
-        }
+            
+            let updateQuery = result.map(element => `'${element.id}', '${element.difficulty}', '${element.name}', '${element.description.replace(/'/gi, "＇").replace(/\\/gi, "")}', '${element.version}', '${element.author}', '${element.playerID}', '${element.length}', '${element.downloads}', '${element.likes}', '${element.gameVersion}', '${element.coins}', '${element.verifiedCoins ? 1 : 0}', '${element.cp}'`).join('), (');
+    
+            await connection.query(
+                `INSERT INTO gd_demons (level_id, difficulty, level_name, level_description, level_version, author_name, author_id, level_length, downloads, likes, ingame_version, coins, coins_verified, creator_points) `
+                +` VALUES (${updateQuery})`
+                +` ON DUPLICATE KEY UPDATE level_id = VALUES(level_id), difficulty = VALUES(difficulty), level_name = VALUES(level_name), level_description = VALUES(level_description), level_version = VALUES(level_version), author_name = VALUES(author_name),`
+                +` author_id = VALUES(author_id), level_length = VALUES(level_length), downloads = VALUES(downloads), likes = VALUES(likes), ingame_version = VALUES(ingame_version), coins = VALUES(coins), coins_verified = VALUES(coins_verified), creator_points = VALUES(creator_points)`);
+    
+            debug.log("GDServer", `A ${result.length} levels were updated, ${saveCount} levels were saved.`, null, false);
         
-        let updateQuery = result.map(element => `'${element.id}', '${element.difficulty}', '${element.name}', '${element.description.replace(/'/gi, "＇").replace(/\\/gi, "")}', '${element.version}', '${element.author}', '${element.playerID}', '${element.length}', '${element.downloads}', '${element.likes}', '${element.gameVersion}', '${element.coins}', '${element.verifiedCoins ? 1 : 0}', '${element.cp}'`).join('), (');
-
-        await connection.query(
-            `INSERT INTO gd_demons (level_id, difficulty, level_name, level_description, level_version, author_name, author_id, level_length, downloads, likes, ingame_version, coins, coins_verified, creator_points) `
-            +` VALUES (${updateQuery})`
-            +` ON DUPLICATE KEY UPDATE level_id = VALUES(level_id), difficulty = VALUES(difficulty), level_name = VALUES(level_name), level_description = VALUES(level_description), level_version = VALUES(level_version), author_name = VALUES(author_name),`
-            +` author_id = VALUES(author_id), level_length = VALUES(level_length), downloads = VALUES(downloads), likes = VALUES(likes), ingame_version = VALUES(ingame_version), coins = VALUES(coins), coins_verified = VALUES(coins_verified), creator_points = VALUES(creator_points)`);
-
-        debug.log("GDServer", `A ${result.length} levels were updated, ${saveCount} levels were saved.`, null, false);
-    
-        if (result.length < 10) {
-            clearPage();
-            if (rawData.result == "success" && !isReady) {
-                setTimeout(() => {
-                    isReady = true;
-                    fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
-                }, (config.gd_server_search_period + config.gd_server_search_period_random)*10000);
+            if (result.length < 10) {
+                clearPage();
+                if (rawData.result == "success" && !isReady) {
+                    setTimeout(() => {
+                        isReady = true;
+                        fs.writeFileSync(path.join(path.resolve(), `/.ready`), ".");
+                    }, (config.gd_server_search_period + config.gd_server_search_period_random)*10000);
+                }
             }
-        }
-        else currentGDPage++;
-    
-        setTimeout(() => {
+            else currentGDPage++;
             cachingDemons();
         }, (config.gd_server_search_period * 1000) + (Math.random() * config.gd_server_search_period_random));
     }
@@ -235,57 +234,55 @@ async function run() {
 
     //caching GD Unrated Demons
     const cachingUnrates = async () => {
-        const clearPage = () => {
-            currentUnPage = 0;
-        }
-        
-        const inteval = (demonCount/10)*(config.gd_server_search_period + config.gd_server_search_period_random)*10;
-        const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id FROM `gd_demons` WHERE last_update < DATE_SUB(NOW(), INTERVAL '+inteval+' SECOND)');
-        
-        if (levels && levels.length) {
-            //request GD Server
-            const rawData = await Notify.getGJLevels({page: currentGDPage, type: 10, str: levels.map(lvl => lvl.level_id).join(",")});
-
-            //Error or Empty
-            if (rawData.total == 0 || rawData.result == "error") {
-                clearPage();
-                cachingUnrates();
-                return;
+        setTimeout(async () => {
+            const clearPage = () => {
+                currentUnPage = 0;
             }
-
-            const result = rawData.levels;
-            debug.log("GDServer", `A ${result.length} unrate levels were cached. (Page : ${currentGDPage})`, null, false);
             
-            const unrateList: Array<Demon> = [];
-
-            //Level Unrate Check
-            for await (const element of levels) {
-                const idx = result.findIndex(level => level.id == element.level_id);
-                if (idx != -1) {
-                    const target = result[idx];
-                    if (!target.isDemon) {
-                        unrateList.push(target);
-                        const notifiData: UnrateNotification = new UnrateNotification(target)
-                        notifyStacks.push(notifiData);
-                        await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UNRATED, ""]);
+            const inteval = (demonCount/10)*(config.gd_server_search_period + config.gd_server_search_period_random)*100;
+            const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id FROM `gd_demons` WHERE last_update < DATE_SUB(NOW(), INTERVAL '+inteval+' SECOND)');
+            
+            if (levels && levels.length) {
+                //request GD Server
+                const rawData = await Notify.getGJLevels({page: currentGDPage, type: 10, str: levels.map(lvl => lvl.level_id).join(",")});
+    
+                //Error or Empty
+                if (rawData.total == 0 || rawData.result == "error") {
+                    clearPage();
+                    cachingUnrates();
+                    return;
+                }
+    
+                const result = rawData.levels;
+                debug.log("GDServer", `A ${result.length} levels were cached for check unrate. (Page : ${currentGDPage})`, null, false);
+                
+                const unrateList: Array<Demon> = [];
+    
+                //Level Unrate Check
+                for await (const element of levels) {
+                    const idx = result.findIndex(level => level.id == element.level_id);
+                    if (idx != -1) {
+                        const target = result[idx];
+                        if (!target.isDemon) {
+                            unrateList.push(target);
+                            const notifiData: UnrateNotification = new UnrateNotification(target)
+                            notifyStacks.push(notifiData);
+                            await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UNRATED, ""]);
+                        }
                     }
                 }
-            }
-
-            if (unrateList.length) {
-                await connection.query(
-                    `DELETE FROM gd_demons WHERE level_id IN (${unrateList.map(d => d.id).join(",")})`);
-                debug.log("GDServer", `A ${unrateList.length} levels were deleted.`, null, false);
-            }
-        
-            if (result.length < 10) {
-                clearPage();
-            }
-            else currentUnPage++;
-        }
-        
     
-        setTimeout(() => {
+                if (unrateList.length) {
+                    await connection.query(
+                        `DELETE FROM gd_demons WHERE level_id IN (${unrateList.map(d => d.id).join(",")})`);
+                    debug.log("GDServer", `A ${unrateList.length} levels were deleted.`, null, false);
+                }
+            
+                if (result.length < 10) {
+                    clearPage();
+                }
+                else currentUnPage++;
+            }
             cachingUnrates();
         }, (demonCount/10)*(config.gd_server_search_period + config.gd_server_search_period_random)*10000);
     }
@@ -295,19 +292,18 @@ async function run() {
 
     //caching Pointercrate
     const cachingPointercrate = async () => {
-        const levels = await Notify.getPointercrateLevel(currentPCPage);
-        await connection.query(levels.map((dl: { level_id: any; position: any; }) => {
-            return `UPDATE gd_demons SET rank_pointercrate = '${dl.position}' WHERE level_id = '${dl.level_id}'`
-        }).join("; "));
-        debug.log("Pointercrate", `A ${levels.length} levels were cached. (Page : ${currentPCPage})`, null, false);
-
-        if (levels.length < 100) {
-            currentPCPage = 0;
-        } else {
-            currentPCPage++;
-        }
-
-        setTimeout(() => {
+        setTimeout(async () => {
+            const levels = await Notify.getPointercrateLevel(currentPCPage);
+            await connection.query(levels.map((dl: { level_id: any; position: any; }) => {
+                return `UPDATE gd_demons SET rank_pointercrate = '${dl.position}' WHERE level_id = '${dl.level_id}'`
+            }).join("; "));
+            debug.log("Pointercrate", `A ${levels.length} levels were cached. (Page : ${currentPCPage})`, null, false);
+    
+            if (levels.length < 100) {
+                currentPCPage = 0;
+            } else {
+                currentPCPage++;
+            }
             cachingPointercrate();
         }, 1000 * 60 * 30);
     }
