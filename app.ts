@@ -105,7 +105,7 @@ async function run() {
     });
 
     client.on("guildCreate", async (guild) => {
-        await connection.query('INSERT INTO `guild_settings` (`guild_id`) VALUES ('+guild.id+')');
+        await connection.query('INSERT IGNORE INTO `guild_settings` (`guild_id`) VALUES ('+guild.id+')');
         debug.log("Discord", "Joined a new guild: " + guild.name + " / Guild Member: " + guild.memberCount + " / Bot Count: "+guild.members.cache.filter(member => member.user.bot).size);
         printGuildsInfo();
     });
