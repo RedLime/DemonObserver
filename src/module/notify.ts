@@ -75,6 +75,7 @@ export default class Notify {
             const pageInfo = gjData[3].split(":");
     
             const result: GJLevelsResult = { total: pageInfo[0], offset: pageInfo[1], result: "success", levels: [] };
+            if (!gjData[0]) return result;
     
             const authors = gjData[1].split("|"), authorList: GDAuthor = {};
             authors.forEach((x: string) => {

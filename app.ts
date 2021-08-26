@@ -135,7 +135,7 @@ async function run() {
         const guildList = client.guilds.cache;
         const totalMembers = guildList.map((guild) => guild.memberCount).reduce((a, b) => a+b, 0);
         const totalMembersWithoutBot = guildList.map((guild) => guild.members.cache.filter(member => !member.user.bot).size).reduce((a, b) => a+b, 0);
-        const ghostGuild = guildList.filter(guild => guild.memberCount*0.5 <= guild.members.cache.filter(mem => mem.user.bot).size).size;
+        const ghostGuild = guildList.filter(guild => guild.memberCount*0.5 <= guild.members.cache.filter(mem => mem.user.bot).size && guild.memberCount <= 10).size;
         debug.log("Discord", `Guilds Info: [Total Guilds: ${guildList.size} / Total Members: ${totalMembers} (w/o bots ${totalMembersWithoutBot}) / Ghost Guilds: ${ghostGuild}]`);
     };
 
@@ -169,51 +169,53 @@ async function run() {
         
             const result = rawData.levels;
             debug.log("GDServer", `A ${result.length} levels were cached. (Page : ${currentGDPage})`, null, false);
+            if (result.length > 0) {
             
-            const updateList: Array<Demon> = [];
-            const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id, difficulty, level_version FROM `gd_demons` WHERE level_id IN ('+ result.map(level => level.id).join(",") +')');
-    
-            //Level Update Check
-            for await (const element of levels) {
-                const idx = result.findIndex(level => level.id == element.level_id);
-                if (idx != -1) {
-                    const target = result[idx];
-                    updateList.push(target);
-    
-                    if (element.difficulty != target.difficulty) {
-                        saveCount++
-                        const notifiData: RerateNotification = new RerateNotification(target, element.difficulty, target.difficulty)
-                        notifyStacks.push(notifiData);
-                        await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`, `data2`) VALUES (?, ?, ?, ?)', [target.id, NotificationType.RERATED, element.difficulty, target.difficulty]);
-                    }
-                    if (element.level_version != target.version) {
-                        saveCount++
-                        const notifiData: UpdateNotification = new UpdateNotification(target, element.level_version, target.version)
-                        notifyStacks.push(notifiData);
-                        await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UPDATED, target.version]);
+                const updateList: Array<Demon> = [];
+                const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id, difficulty, level_version FROM `gd_demons` WHERE level_id IN ('+ result.map(level => level.id).join(",") +')');
+        
+                //Level Update Check
+                for await (const element of levels) {
+                    const idx = result.findIndex(level => level.id == element.level_id);
+                    if (idx != -1) {
+                        const target = result[idx];
+                        updateList.push(target);
+        
+                        if (element.difficulty != target.difficulty) {
+                            saveCount++
+                            const notifiData: RerateNotification = new RerateNotification(target, element.difficulty, target.difficulty)
+                            notifyStacks.push(notifiData);
+                            await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`, `data2`) VALUES (?, ?, ?, ?)', [target.id, NotificationType.RERATED, element.difficulty, target.difficulty]);
+                        }
+                        if (element.level_version != target.version) {
+                            saveCount++
+                            const notifiData: UpdateNotification = new UpdateNotification(target, element.level_version, target.version)
+                            notifyStacks.push(notifiData);
+                            await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UPDATED, target.version]);
+                        }
                     }
                 }
-            }
-    
-            for await (const element of result) {
-                if (levels.findIndex(level => level.level_id == element.id) == -1) {
-                    demonCount++;
-                    const notifiData: AwardNotification = new AwardNotification(element, demonCount);
-                    notifyStacks.push(notifiData);
-                    await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.id, NotificationType.AWARDED, element.difficulty]);
-                    saveCount++
+        
+                for await (const element of result) {
+                    if (levels.findIndex(level => level.level_id == element.id) == -1) {
+                        demonCount++;
+                        const notifiData: AwardNotification = new AwardNotification(element, demonCount);
+                        notifyStacks.push(notifiData);
+                        await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.id, NotificationType.AWARDED, element.difficulty]);
+                        saveCount++
+                    }
                 }
+                
+                let updateQuery = result.map(element => `'${element.id}', '${element.difficulty}', '${element.name}', '${element.description.replace(/'/gi, "＇").replace(/\\/gi, "")}', '${element.version}', '${element.author}', '${element.playerID}', '${element.length}', '${element.downloads}', '${element.likes}', '${element.gameVersion}', '${element.coins}', '${element.verifiedCoins ? 1 : 0}', '${element.cp}'`).join('), (');
+        
+                await connection.query(
+                    `INSERT INTO gd_demons (level_id, difficulty, level_name, level_description, level_version, author_name, author_id, level_length, downloads, likes, ingame_version, coins, coins_verified, creator_points) `
+                    +` VALUES (${updateQuery})`
+                    +` ON DUPLICATE KEY UPDATE level_id = VALUES(level_id), difficulty = VALUES(difficulty), level_name = VALUES(level_name), level_description = VALUES(level_description), level_version = VALUES(level_version), author_name = VALUES(author_name),`
+                    +` author_id = VALUES(author_id), level_length = VALUES(level_length), downloads = VALUES(downloads), likes = VALUES(likes), ingame_version = VALUES(ingame_version), coins = VALUES(coins), coins_verified = VALUES(coins_verified), creator_points = VALUES(creator_points)`);
+        
+                debug.log("GDServer", `A ${result.length} levels were updated, ${saveCount} levels were saved.`, null, false);
             }
-            
-            let updateQuery = result.map(element => `'${element.id}', '${element.difficulty}', '${element.name}', '${element.description.replace(/'/gi, "＇").replace(/\\/gi, "")}', '${element.version}', '${element.author}', '${element.playerID}', '${element.length}', '${element.downloads}', '${element.likes}', '${element.gameVersion}', '${element.coins}', '${element.verifiedCoins ? 1 : 0}', '${element.cp}'`).join('), (');
-    
-            await connection.query(
-                `INSERT INTO gd_demons (level_id, difficulty, level_name, level_description, level_version, author_name, author_id, level_length, downloads, likes, ingame_version, coins, coins_verified, creator_points) `
-                +` VALUES (${updateQuery})`
-                +` ON DUPLICATE KEY UPDATE level_id = VALUES(level_id), difficulty = VALUES(difficulty), level_name = VALUES(level_name), level_description = VALUES(level_description), level_version = VALUES(level_version), author_name = VALUES(author_name),`
-                +` author_id = VALUES(author_id), level_length = VALUES(level_length), downloads = VALUES(downloads), likes = VALUES(likes), ingame_version = VALUES(ingame_version), coins = VALUES(coins), coins_verified = VALUES(coins_verified), creator_points = VALUES(creator_points)`);
-    
-            debug.log("GDServer", `A ${result.length} levels were updated, ${saveCount} levels were saved.`, null, false);
         
             if (result.length < 10) {
                 clearPage();
