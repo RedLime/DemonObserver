@@ -99,6 +99,7 @@ async function run() {
         cachingPointercrate();
         sendNotifications();
         printGuildsInfo();
+        //removeGhostServer();
 
         //Setup Bot Interactions
         Commands.registerCommands(client);
@@ -137,6 +138,19 @@ async function run() {
         const totalMembersWithoutBot = guildList.map((guild) => guild.members.cache.filter(member => !member.user.bot).size).reduce((a, b) => a+b, 0);
         const ghostGuild = guildList.filter(guild => guild.memberCount*0.5 <= guild.members.cache.filter(mem => mem.user.bot).size && guild.memberCount <= 10).size;
         debug.log("Discord", `Guilds Info: [Total Guilds: ${guildList.size} / Total Members: ${totalMembers} (w/o bots ${totalMembersWithoutBot}) / Ghost Guilds: ${ghostGuild}]`);
+    };
+
+    /*-------------------------------------*/
+
+    const removeGhostServer = () => {
+        const guildList = client.guilds.cache;
+        const ghostGuild = guildList.filter(guild => guild.memberCount*0.5 <= guild.members.cache.filter(mem => mem.user.bot).size && guild.memberCount <= 10);
+        const message = "DemonObserver has been removed from this server for Discord Bot Verification.\nIt was removed because this server was a ghost server.\nPlease refer to DemonObserver official Discord server for detailed notice. https://discord.gg/3BgJEjkRPS";
+        ghostGuild.forEach(async guild => {
+            const owner = await guild.fetchOwner();
+            await owner.send(message).catch(() => {}); 
+            await guild.leave();
+        });
     };
 
     /*-------------------------------------*/

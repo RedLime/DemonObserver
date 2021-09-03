@@ -75,7 +75,7 @@ async function loadRecentArchives(interaction: UserInteraction, filter: Notifica
 
 
     const result: MessageOptions = {};
-    const totalPage = Math.ceil((+logCount.total)/(perPage*1.0));
+    const totalPage = Math.min(Math.ceil((+logCount.total)/(perPage*1.0)), 25);
     const embed = new MessageEmbed()
         .setTitle(await interaction.localeMessage("MESSAGE_RECENT_DEMON_ARCHIVES"))
         .addField(await interaction.localeMessage("FILTER") + ": " + await interaction.localeMessage(filter ? filter.toUpperCase() : "ALL"), rawLogs || await interaction.localeMessage("NOTHING"))
