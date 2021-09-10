@@ -6,23 +6,23 @@
         {
             "name": "type",
             "description": "Set the more Demon information to show.",
-            "type": 4,
+            "type": 3,
             "choices": [
                 {
                     "name": "Number changes",
-                    "value": 0
+                    "value": "0"
                 },
                 {
                     "name": "Creator Points",
-                    "value": 1
+                    "value": "1"
                 },
                 {
                     "name": "Length",
-                    "value": 2
+                    "value": "2"
                 },
                 {
                     "name": "GD Version",
-                    "value": 3
+                    "value": "3"
                 }
             ]
         }

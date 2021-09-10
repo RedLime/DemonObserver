@@ -41,7 +41,7 @@ export default class DemonsCommand extends CommandUserInteraction {
                 .setTimestamp()
         }
 
-        const type = this.interaction.options.getInteger("type");
+        const type = +(this.interaction.options.getString("type") || "0");
         if (!type) {
             //Type: 7일 변동추이
             const date = new Date();

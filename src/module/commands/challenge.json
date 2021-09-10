@@ -16,35 +16,35 @@
                 {
                     "name": "filter",
                     "description": "Challenge Demon filter",
-                    "type": 4,
+                    "type": 3,
                     "choices": [
                         {
                             "name": "All",
-                            "value": 1
+                            "value": "1"
                         },
                         {
                             "name": "Easy Demon",
-                            "value": 3
+                            "value": "3"
                         },
                         {
                             "name": "Medium Demon",
-                            "value": 4
+                            "value": "4"
                         },
                         {
                             "name": "Hard Demon",
-                            "value": 0
+                            "value": "0"
                         },
                         {
                             "name": "Insane Demon",
-                            "value": 5
+                            "value": "5"
                         },
                         {
                             "name": "Extreme Demon",
-                            "value": 6
+                            "value": "6"
                         },
                         {
                             "name": "Pointercrate DemonList",
-                            "value": 2
+                            "value": "2"
                         }
                     ]
                 }

@@ -26,7 +26,7 @@ export class ConfigCommand extends CommandUserInteraction {
 
 
         if (this.interaction.options.getSubcommand() == "language") {
-            const target = this.interaction.options.getInteger("set");
+            const target = this.interaction.options.getString("set");
             if (target == undefined || target == null) {
                 const embed = new MessageEmbed()
                     .setTitle(await this.localeMessage("MESSAGE_CURRENT_LANGUAGE") + ": " 

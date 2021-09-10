@@ -10,8 +10,9 @@ import { ButtonUserInteraction, CommandUserInteraction, MenuUserInteraction, Use
 export class ChallengeCommand extends CommandUserInteraction {
 
     async execute(): Promise<void> {
-        const subCommand = this.interaction.options.getSubcommand(), filter = this.interaction.options.getInteger("filter") ?? 1, skips = Math.max(Math.min(this.interaction.options.getInteger("skips") || 0, 10), 0);
+        const subCommand = this.interaction.options.getSubcommand();
         if (subCommand == "create") {
+            const filter = +(this.interaction.options.getString("filter") ?? "1"), skips = Math.max(Math.min(this.interaction.options.getInteger("skips") || 0, 10), 0);
             const lastChallenge = await Challenge.findCurrentByUser(this.connection, this.interaction.user.id);
             if (!lastChallenge) {
                 const embed = new MessageEmbed()

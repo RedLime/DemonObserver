@@ -53,15 +53,15 @@
                 {
                     "name": "set",
                     "description": "Change bot's language to English",
-                    "type": 4,
+                    "type": 3,
                     "choices": [
                         {
                             "name": "English",
-                            "value": 0
+                            "value": "0"
                         },
                         {
                             "name": "한국어",
-                            "value": 1
+                            "value": "1"
                         }
                     ]
                 }
