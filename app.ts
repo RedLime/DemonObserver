@@ -26,7 +26,7 @@ import InteractionManager from './src/module/interaction';
 //setup variable
 var debug: Debug, interactionManager: InteractionManager
 const notifyStacks: Array<Notification> = [];
-var demonCount = 0, currentGDPage = 0, currentUnPage = 0, currentPCPage = 0;
+var demonCount = 0, currentGDPage = 0, currentUnPage = 0, currentPCPage = 0, awardedPage = false;
 var isSetup = fs.existsSync(path.join(path.resolve(), `/.setup`));
 var isReady = fs.existsSync(path.join(path.resolve(), `/.ready`));
 
@@ -166,7 +166,8 @@ async function run() {
             let saveCount = 0;
             
             //request GD Server
-            const rawData = await Notify.getGJLevels({diff: -2, page: currentGDPage, type: 4, str: "",});
+            const filter = awardedPage ? {diff: -2, page: 0, type: 11, str: ""} : {diff: -2, page: currentGDPage, type: 4, str: ""};
+            const rawData = await Notify.getGJLevels(filter);
         
             //Error or Empty
             if (rawData.total == 0 || rawData.result == "error") {
@@ -240,7 +241,14 @@ async function run() {
                     }, (config.gd_server_search_period + config.gd_server_search_period_random)*10000);
                 }
             }
-            else currentGDPage++;
+            else {
+                if (!awardedPage) {
+                    currentGDPage++;
+                    awardedPage = currentGDPage % 15 == 14;
+                } else {
+                    awardedPage = false;
+                }
+            }
             cachingDemons();
         }, (config.gd_server_search_period * 1000) + (Math.random() * config.gd_server_search_period_random));
     }

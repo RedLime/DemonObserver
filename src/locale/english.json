@@ -26,7 +26,7 @@
     "MESSAGE_HELP_CONFIG_LIST": "Shows all current bot configurations.",
     "MESSAGE_HELP_CONFIG_ADMINROLE": "Set the role for can use the Config command.",
     "MESSAGE_NEW_AWARDED_DEMON": "A new Demon has awarded! (No.{0} Demon)",
-    "MESSAGE_CHANGE_DIFFICULTY_RATE_DEMON": "Demon diffiulty rating has changed!",
+    "MESSAGE_CHANGE_DIFFICULTY_RATE_DEMON": "Demon difficulty rating has changed!",
     "MESSAGE_UPDATED_DEMON": "Just recently, this level has been updated.",
     "MESSAGE_UNRATED_DEMON": "Sadly, this Demon seems to have been unrated. :sob:",
     "MESSAGE_UNRATED_REASON_UNRATE_ONLY": "This level has been unrated by RobTop.",
