@@ -39,7 +39,7 @@ export async function getLocale(connection: mysql.Pool, guild_id: string | numbe
     if (localesData[guild_id] != null) {
         return localesData[guild_id];
     } else {
-        const [[result]] = <RowDataPacket[][]> await connection.query('SELECT language FROM guild_settings');
+        const [[result]] = <RowDataPacket[][]> await connection.query('SELECT language FROM guild_settings WHERE guild_id = ?', [guild_id]);
         if (result) {
             localesData[guild_id] = result.language ?? 0;
             return localesData[guild_id];
