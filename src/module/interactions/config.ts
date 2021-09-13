@@ -1,9 +1,8 @@
 
 import { MessageActionRow, MessageButton, MessageEmbed, MessageOptions, MessageSelectOptionData, MessageSelectMenu, Permissions, GuildMember, TextChannel, TextBasedChannels } from "discord.js";
 import { RowDataPacket } from "mysql2/promise";
-import Demon from "../../classes/demon";
 import { ButtonUserInteraction, CommandUserInteraction, MenuUserInteraction, UserInteraction } from "../../classes/interaction";
-import { NotificationTypeKey, NotificationType } from "../../classes/notification";
+import { updateLocale, LocaleType } from "../localize";
 
 
 
@@ -33,14 +32,20 @@ export class ConfigCommand extends CommandUserInteraction {
                     + (!serverConfig.language ? "English" : "한국어"));
                 this.interaction.reply({embeds: [embed]});
             } else {
-                await this.connection.query(
-                    `UPDATE guild_settings SET language = '${target}' WHERE guild_id = '${this.interaction.guildId}'`
-                );
-                
-                const embed = new MessageEmbed()
-                    .setTitle(await this.localeMessage("MESSAGE_SUCCESS_CHANGE_LANGUAGE"))
-                    .setColor([0,255,0]);
-                this.interaction.reply({embeds: [embed]});
+                try {
+                    updateLocale(this.connection, this.interaction.guildId, +target as LocaleType);
+                    await this.connection.query(
+                        `UPDATE guild_settings SET language = '${target}' WHERE guild_id = '${this.interaction.guildId}'`
+                    );
+                    
+                    const embed = new MessageEmbed()
+                        .setTitle(await this.localeMessage("MESSAGE_SUCCESS_CHANGE_LANGUAGE"))
+                        .setColor([0,255,0]);
+                    this.interaction.reply({embeds: [embed]});
+                } catch {
+                    this.interaction.reply({ embeds: [new MessageEmbed()
+                        .setTitle(await this.localeMessage("ERROR")).setColor([255,0,0])]});
+                }
             }
         }
 

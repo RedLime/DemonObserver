@@ -3,7 +3,7 @@ import english from '../locale/english.json';
 import korean from '../locale/korean.json';
 import mysql, { RowDataPacket } from 'mysql2/promise'
 
-type LocaleType = 0 | 1
+export type LocaleType = 0 | 1
 type LocaleString = {[key: string]: string}
 const locales = {
     0: <LocaleString> english,
