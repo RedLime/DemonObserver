@@ -266,15 +266,9 @@ async function loadChallengeInfo(interaction: UserInteraction, id: number, page:
         result.components = [];
     }
 
-    const userCache = interaction.interaction.client.users.cache.get(lastChallenge.owner)
-
-    if (!userCache) {
-        return { embeds: [errorEmbed] };
-    }
-    
     const embed = new MessageEmbed()
         .setTitle(await interaction.localeMessage("CHALLENGE_INFO"))
-        .addField(await interaction.localeMessage("USER"), userCache.tag, true)
+        .addField(await interaction.localeMessage("USER"), `<@${lastChallenge.owner}>`, true)
         .addField(await interaction.localeMessage("SCORE"), ""+lastChallenge.score, true)
         .addField(await interaction.localeMessage("STATUS"), await interaction.localeMessage(lastChallenge.status == ChallengeStatus.STOP ? "ENDED" : lastChallenge.status == ChallengeStatus.COMPLETE ? "COMPLETED" : "IN_PROGRESS"), true)
         .addField(await interaction.localeMessage("FILTER"), Challenge.filterToString(lastChallenge.filter))

@@ -250,7 +250,7 @@ async function loadNotificationConfig(interaction: UserInteraction, serverConfig
     const isSelect = (demonType: NotificationDetail) => isEnableNotification(selectScore, demonType);
     const checkChannel = (demonType: NotificationDetail) => serverConfig["channel_"+demonType];
     const checkEnableMark = async (demonType: NotificationDetail) => await interaction.localeMessage(serverConfig["enable_"+demonType] ? "ENABLED" : "DISABLED");
-    const me = channel?.guild.members.cache.get(interaction.interaction.client.user?.id || "") 
+    const me = channel?.guild.me;
 
     if (!interaction.interaction.guild) {
         return {embeds: [new MessageEmbed()

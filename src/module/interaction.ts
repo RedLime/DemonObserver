@@ -11,8 +11,7 @@ import { LevelButton, LevelCommand, LevelMenu } from './interactions/level';
 import { ChallengeButton, ChallengeCommand, ChallengeMenu } from './interactions/challenge';
 import { ConfigButton, ConfigCommand, ConfigMenu } from './interactions/config';
 
-
-const lastCmdLog = { id: "0", message: '', count: 0 };
+var lastLogMessage = ``;
 
 const emojis = {
     RATED: sampleEmojis.RATED,
@@ -58,14 +57,9 @@ export default class InteractionManager {
         // Command log
         const logMessage = this.client.guilds.cache.get(interaction.guildId ?? "")?.name + '`('+interaction.guildId  +')`' + " perform command `/"+interaction.commandName+"`";
         const logChannel = this.client.channels.cache.get(config.command_log_channel) as TextChannel | undefined
-        if (logChannel && Utils.isCanSend(this.client, logChannel)) {
-            if (lastCmdLog.message == logMessage) {
-                logChannel?.messages.cache.get(lastCmdLog.id)?.edit(logMessage + ` [x${++lastCmdLog.count}]`);
-            } else {
-                lastCmdLog.id = (await logChannel?.send(logMessage))?.id ?? '0';
-                lastCmdLog.message = logMessage;
-                lastCmdLog.count = 1;
-            }
+        if (logChannel && Utils.isCanSend(this.client, logChannel) && lastLogMessage == logMessage) {
+            logChannel.send(logMessage);
+            lastLogMessage = logMessage;
         }
 
         // about , help
