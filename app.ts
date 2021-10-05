@@ -60,7 +60,7 @@ async function run() {
     }
 
     //Discord Setup
-    const client = new Discord.Client({ intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_PRESENCES] });
+    const client = new Discord.Client({ intents: [Intents.FLAGS.GUILDS] });
 
     //Discord Run
     client.once('ready', async () => {
@@ -107,7 +107,7 @@ async function run() {
 
     client.on("guildCreate", async (guild) => {
         await connection.query('INSERT IGNORE INTO `guild_settings` (`guild_id`) VALUES ('+guild.id+')');
-        debug.log("Discord", "Joined a new guild: " + guild.name + " / Guild Member: " + guild.memberCount + " / Bot Count: "+guild.members.cache.filter(member => member.user.bot).size);
+        debug.log("Discord", "Joined a new guild: " + guild.name + " / Guild Member: " + guild.memberCount);
         printGuildsInfo();
     });
 
@@ -135,22 +135,7 @@ async function run() {
     const printGuildsInfo = () => {
         const guildList = client.guilds.cache;
         const totalMembers = guildList.map((guild) => guild.memberCount).reduce((a, b) => a+b, 0);
-        const totalMembersWithoutBot = guildList.map((guild) => guild.members.cache.filter(member => !member.user.bot).size).reduce((a, b) => a+b, 0);
-        const ghostGuild = guildList.filter(guild => guild.memberCount*0.5 <= guild.members.cache.filter(mem => mem.user.bot).size && guild.memberCount <= 10).size;
-        debug.log("Discord", `Guilds Info: [Total Guilds: ${guildList.size} / Total Members: ${totalMembers} (w/o bots ${totalMembersWithoutBot}) / Ghost Guilds: ${ghostGuild}]`);
-    };
-
-    /*-------------------------------------*/
-
-    const removeGhostServer = () => {
-        const guildList = client.guilds.cache;
-        const ghostGuild = guildList.filter(guild => guild.memberCount*0.5 <= guild.members.cache.filter(mem => mem.user.bot).size && guild.memberCount <= 10);
-        const message = "DemonObserver has been removed from this server for Discord Bot Verification.\nIt was removed because this server was a ghost server.\nPlease refer to DemonObserver official Discord server for detailed notice. https://discord.gg/3BgJEjkRPS";
-        ghostGuild.forEach(async guild => {
-            const owner = await guild.fetchOwner();
-            await owner.send(message).catch(() => {}); 
-            await guild.leave();
-        });
+        debug.log("Discord", `Guilds Info: [Total Guilds: ${guildList.size} / Total Members: ${totalMembers}]`);
     };
 
     /*-------------------------------------*/
