@@ -57,7 +57,7 @@ export default class InteractionManager {
         // Command log
         const logMessage = this.client.guilds.cache.get(interaction.guildId ?? "")?.name + '`('+interaction.guildId  +')`' + " perform command `/"+interaction.commandName+"`";
         const logChannel = this.client.channels.cache.get(config.command_log_channel) as TextChannel | undefined
-        if (logChannel && Utils.isCanSend(this.client, logChannel) && lastLogMessage == logMessage) {
+        if (logChannel && Utils.isCanSend(this.client, logChannel) && lastLogMessage != logMessage) {
             logChannel.send(logMessage);
             lastLogMessage = logMessage;
         }
