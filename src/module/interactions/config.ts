@@ -53,7 +53,7 @@ export class ConfigCommand extends CommandUserInteraction {
             if (this.interaction.options.getSubcommand() == "status") {
                 const embed = new MessageEmbed()
                     .setTitle(await this.localeMessage("MESSAGE_CURRENT_MENTION"))
-                    .setDescription(`** : ${serverConfig.mention_role || serverConfig.mention_role == "0" ? `<@${serverConfig.mention_role}>` : await this.localeMessage("NOTHING")}**`);
+                    .setDescription(`** : ${serverConfig.mention_role && serverConfig.mention_role != "0" ? `<@${serverConfig.mention_role}>` : await this.localeMessage("NOTHING")}**`);
                 this.interaction.reply({embeds: [embed]});
             }
             if (this.interaction.options.getSubcommand() == "enable") {
@@ -94,7 +94,7 @@ export class ConfigCommand extends CommandUserInteraction {
             const embed = new MessageEmbed()
                 .setTitle(await this.localeMessage("MESSAGE_CURRENT_CONFIGURATION"))
                 .addField(await this.localeMessage("MESSAGE_CURRENT_LANGUAGE"), !serverConfig.language ? "English" : "한국어")
-                .addField(await this.localeMessage("MESSAGE_CURRENT_ADMINROLE"), serverConfig.admin_role || serverConfig.admin_role == "0" ? `<@&${serverConfig.admin_role}>` : await this.localeMessage("NOTHING"))
+                .addField(await this.localeMessage("MESSAGE_CURRENT_ADMINROLE"), serverConfig.admin_role && serverConfig.admin_role != "0" ? `<@&${serverConfig.admin_role}>` : await this.localeMessage("NOTHING"))
                 .addField(await this.localeMessage("MESSAGE_CURRENT_NOTIFICATIONS_CHANNEL"), 
                     `**${await this.localeMessage("RATED_DEMON")}** - <#${serverConfig.channel_awarded}>, `
                     + `${await this.localeMessage(serverConfig.enable_awarded ? "ENABLED" : "DISABLED")}`
@@ -112,7 +112,7 @@ export class ConfigCommand extends CommandUserInteraction {
                     + `${await this.localeMessage(serverConfig.enable_insane ? "ENABLED" : "DISABLED")}`
                     + `\n**Extreme Demon** - <#${serverConfig.channel_extreme}>, `
                     + `${await this.localeMessage(serverConfig.enable_extreme ? "ENABLED" : "DISABLED")}`)
-                .addField(await this.localeMessage("MESSAGE_CURRENT_MENTION"), serverConfig.mention_role || serverConfig.mention_role == "0" ? `<@&${serverConfig.mention_role}>` : await this.localeMessage("NOTHING"));
+                .addField(await this.localeMessage("MESSAGE_CURRENT_MENTION"), serverConfig.mention_role && serverConfig.mention_role != "0" ? `<@&${serverConfig.mention_role}>` : await this.localeMessage("NOTHING"));
             this.interaction.reply({embeds: [embed]});
         }
 
