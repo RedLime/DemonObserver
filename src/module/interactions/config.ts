@@ -17,7 +17,7 @@ export class ConfigCommand extends CommandUserInteraction {
         const member = this.interaction.member as GuildMember;
         
         if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !(serverConfig.admin_role && member.roles.cache.has(serverConfig.admin_role))) {
-            const title = serverConfig.admin_role ? await this.localeMessage("MESSAGE_INVAILD_PERMISSION_ROLE", [serverConfig.admin_role]) : await this.localeMessage("MESSAGE_INVAILD_PERMISSION");
+            const title = serverConfig.admin_role && serverConfig.admin_role != "0" ? await this.localeMessage("MESSAGE_INVAILD_PERMISSION_ROLE", [serverConfig.admin_role]) : await this.localeMessage("MESSAGE_INVAILD_PERMISSION");
             this.interaction.reply({ embeds: [new MessageEmbed()
                 .setTitle(await this.localeMessage("ERROR")).setDescription(title).setColor([255,0,0])]})
             return;
