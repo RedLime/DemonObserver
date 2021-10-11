@@ -19,8 +19,12 @@ export default class AboutCommand extends CommandUserInteraction {
             .setStyle("LINK")
             .setLabel("DemonObserver Discord Server")
             .setURL(this.config.server_url);
+        const donateButton = new MessageButton()
+            .setStyle("LINK")
+            .setLabel(await this.localeMessage("DONATE_DEV"))
+            .setURL('https://www.patreon.com/join/redlimerl/checkout?rid=0&cadence=1');
         const buttonComponent = new MessageActionRow()
-            .addComponents(inviteButton, inviteServerButton);
+            .addComponents(inviteButton, inviteServerButton, donateButton);
         this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [embed], components: [buttonComponent]}));
     }
 }

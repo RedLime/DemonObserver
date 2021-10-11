@@ -62,6 +62,7 @@
     "MESSAGE_NOTIFICATION_UPDATED_DEMON": "Notification when a Demons are level updated.",
     "MESSAGE_NOTIFICATION_RERATED_DEMON": "Notification when the rerated to {0} Demon.", 
     "ABOUT_DEMON_OBSERVER": "About DemonObserver",
+    "DONATE_DEV": "Donate to Dev",
     "TIME_MOMENT": "a moment ago",
     "TIME_SECONDS": "{0} second{1} ago",
     "TIME_MINUTES": "{0} minute{1} ago",

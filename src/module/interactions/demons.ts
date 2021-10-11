@@ -1,12 +1,11 @@
-import { MessageEmbed, MessagePayload } from "discord.js";
+import { ChartJSNodeCanvas } from "chartjs-node-canvas";
+import { MessageAttachment, MessageEmbed, MessagePayload } from "discord.js";
 import { RowDataPacket } from "mysql2/promise";
 import Demon from "../../classes/demon";
 import { CommandUserInteraction } from "../../classes/interaction";
 import { NotificationType } from "../../classes/notification";
 
 export default class DemonsCommand extends CommandUserInteraction {
-
-
     async execute(): Promise<void> {
         const demonData = {
             easy: { amount: 0, change: 0},
@@ -63,9 +62,19 @@ export default class DemonsCommand extends CommandUserInteraction {
                     demonData[Demon.getDifficultyText(+rec.data2)].change++;
                 }
             });
+
+            const chart = this.getPieChart();
+            chart.chartConfig.data.datasets[0].data.push(demonData.easy.amount);
+            chart.chartConfig.data.datasets[0].data.push(demonData.medium.amount);
+            chart.chartConfig.data.datasets[0].data.push(demonData.hard.amount);
+            chart.chartConfig.data.datasets[0].data.push(demonData.insane.amount);
+            chart.chartConfig.data.datasets[0].data.push(demonData.extreme.amount);
+
+            const image = await chart.chart.renderToBuffer(chart.chartConfig, 'image/jpeg');
+            const file = new MessageAttachment(image, "info.jpeg");
             
             const resultEmbed = await result(await this.localeMessage("MESSAGE_LAST_WEEK_DEMONS_CHANGE_AMOUNT"), toChangeString(demonData.easy), toChangeString(demonData.medium), toChangeString(demonData.hard), toChangeString(demonData.insane), toChangeString(demonData.extreme), toChangeString(demonData.total));
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed]}));
+            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
         } else if (type == 1) {
             //레이팅 종류
             const [demonCounts] = <RowDataPacket[][]> await this.connection.query('SELECT creator_points, COUNT(case when difficulty=0 then 1 end) as `hard`, '
@@ -75,9 +84,17 @@ export default class DemonsCommand extends CommandUserInteraction {
             const toChangeString = (data: string) => {
                 return demonCounts.map(element => `**${element.creator_points}: **${element[data]}`).join('　');
             }
+
+            const chart = this.getStackedChart();
+            demonCounts.forEach((element, index) => {
+                chart.chartConfig.data.datasets.push({ label: ""+element.creator_points, data: [element['easy'], element['medium'], element['hard'], element['insane'], element['extreme']], backgroundColor: chart.backgroundColor[index] });
+            });
+
+            const image = await chart.chart.renderToBuffer(chart.chartConfig, 'image/jpeg');
+            const file = new MessageAttachment(image, "info.jpeg");
             
             const resultEmbed = await result(await this.localeMessage("MESSAGE_CP_DEMONS_AMOUNT"), toChangeString('easy'), toChangeString('medium'), toChangeString('hard'), toChangeString('insane'), toChangeString('extreme'), toChangeString('total'));
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed]}));
+            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
         } else if (type == 2) {
             //길이
             const [demonCounts] = <RowDataPacket[][]> await this.connection.query('SELECT level_length, COUNT(case when difficulty=0 then 1 end) as `hard`, '
@@ -87,9 +104,17 @@ export default class DemonsCommand extends CommandUserInteraction {
             const toChangeString = (data: string) => {
                 return demonCounts.map(element => `**${Demon.getLengthText(+element.level_length)}: **${element[data]}`).join('　');
             }
+
+            const chart = this.getStackedChart();
+            demonCounts.forEach((element, index) => {
+                chart.chartConfig.data.datasets.push({ label: Demon.getLengthText(+element.level_length), data: [element['easy'], element['medium'], element['hard'], element['insane'], element['extreme']], backgroundColor: chart.backgroundColor[index] });
+            });
+
+            const image = await chart.chart.renderToBuffer(chart.chartConfig, 'image/jpeg');
+            const file = new MessageAttachment(image, "info.jpeg");
             
             const resultEmbed = await result(await this.localeMessage("MESSAGE_LENGTH_DEMONS_AMOUNT"), toChangeString('easy'), toChangeString('medium'), toChangeString('hard'), toChangeString('insane'), toChangeString('extreme'), toChangeString('total'));
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed]}));
+            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
         } else {
             //업로드된 버전
             const [demonCounts] = <RowDataPacket[][]> await this.connection.query('SELECT ingame_version, COUNT(case when difficulty=0 then 1 end) as `hard`, '
@@ -99,9 +124,99 @@ export default class DemonsCommand extends CommandUserInteraction {
             const toChangeString = (demon: string) => {
                 return demonCounts.map(element => `**${Demon.getIngameVersion(+element.ingame_version)}: **${element[demon]}`).join('　');
             }
+
+            const chart = this.getStackedChart();
+            demonCounts.forEach((element, index) => {
+                chart.chartConfig.data.datasets.push({ label: Demon.getIngameVersion(+element.ingame_version), data: [element['easy'], element['medium'], element['hard'], element['insane'], element['extreme']], backgroundColor: chart.backgroundColor[index] });
+            });
+
+            const image = await chart.chart.renderToBuffer(chart.chartConfig, 'image/jpeg');
+            const file = new MessageAttachment(image, "info.jpeg");
             
             const resultEmbed = await result(await this.localeMessage("MESSAGE_VERSION_DEMONS_AMOUNT"),toChangeString('easy'), toChangeString('medium'),toChangeString('hard'), toChangeString('insane'),toChangeString('extreme'), toChangeString('total'));
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed]}));
+            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
         }
+    }
+
+    private getStackedChart() {
+        const chart = new ChartJSNodeCanvas({ width: 800, height: 450, chartCallback: (ChartJS) => {
+            ChartJS.defaults.global.defaultFontColor = '#FFF';
+        } });
+        const backgroundColor = [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 206, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(153, 102, 255)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 102, 255)'
+        ];
+        const chartConfig = {
+            type: 'bar',
+            data: {
+                labels: [
+                    'Easy Demon',
+                    'Medium Demon',
+                    'Hard Demon',
+                    'Insane Demon',
+                    'Extreme Demon'
+                ],
+                datasets: [
+                    {
+                        label: '1.6',
+                        data: [1, 2, 3, 4, 5],
+                        backgroundColor: backgroundColor[0]
+                    },
+                ]
+            },
+            options: {
+                scales: {
+                    xAxes: [{
+                        stacked: true
+                    }],
+                    yAxes: [{
+                        stacked: true
+                    }]
+                }
+            }
+        };
+        chartConfig.data.datasets.length = 0;
+        return { chart, backgroundColor, chartConfig};
+    }
+
+    private getPieChart() {
+        const chart = new ChartJSNodeCanvas({ width: 800, height: 450, chartCallback: (ChartJS) => {
+            ChartJS.defaults.global.defaultFontColor = '#FFF';
+        } });
+        const backgroundColor = [
+            'rgb(255, 99, 132)',
+            'rgb(54, 162, 235)',
+            'rgb(255, 206, 86)',
+            'rgb(75, 192, 192)',
+            'rgb(153, 102, 255)',
+            'rgb(255, 159, 64)',
+            'rgb(255, 102, 255)'
+        ];
+        const chartConfig = {
+            type: 'pie',
+            data: {
+                labels: [
+                    'Easy Demon',
+                    'Medium Demon',
+                    'Hard Demon',
+                    'Insane Demon',
+                    'Extreme Demon'
+                ],
+                datasets: [
+                    {
+                        label: 'dataset',
+                        data: [1, 2, 3, 4, 5],
+                        backgroundColor: backgroundColor
+                    }
+                ]
+            }
+        };
+        chartConfig.data.datasets[0].data.length = 0;
+        return { chart, backgroundColor, chartConfig};
     }
 }

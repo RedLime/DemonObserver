@@ -11,6 +11,7 @@
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
     "@types/request-promise": "^4.1.48",
+    "chartjs-node-canvas": "^3.2.0",
     "discord.js": "^13.0.1",
     "fs": "^0.0.1-security",
     "mysql2": "^2.3.0",
