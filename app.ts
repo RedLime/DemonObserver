@@ -303,15 +303,17 @@ async function run() {
     const cachingPointercrate = async () => {
         setTimeout(async () => {
             const levels = await Notify.getPointercrateLevel(currentPCPage);
-            await connection.query(levels.map((dl: { level_id: any; position: any; }) => {
-                return `UPDATE gd_demons SET rank_pointercrate = '${dl.position}' WHERE level_id = '${dl.level_id}'`
-            }).join("; "));
-            debug.log("Pointercrate", `A ${levels.length} levels were cached. (Page : ${currentPCPage})`, null, false);
-    
-            if (levels.length < 100) {
-                currentPCPage = 0;
-            } else {
-                currentPCPage++;
+            if (levels.length) {
+                await connection.query(levels.map((dl: { level_id: any; position: any; }) => {
+                    return `UPDATE gd_demons SET rank_pointercrate = '${dl.position}' WHERE level_id = '${dl.level_id}'`
+                }).join("; "));
+                debug.log("Pointercrate", `A ${levels.length} levels were cached. (Page : ${currentPCPage})`, null, false);
+        
+                if (levels.length < 100) {
+                    currentPCPage = 0;
+                } else {
+                    currentPCPage++;
+                }
             }
             cachingPointercrate();
         }, 1000 * 60 * 30);
