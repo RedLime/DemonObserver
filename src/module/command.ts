@@ -15,8 +15,7 @@ for (const file of commandFiles) {
 export default class RegisterCommand {
     static async registerCommands(client: Client) {
         const rest = new REST({ version: '9' }).setToken(config.bot_token);
-    
-        console.log('Started refreshing application (/) commands.');
+
         if (config.debug) {
             await rest.put(
                 Routes.applicationGuildCommands(client.user?.id ?? "", config.command_guild_only.toString()),
@@ -28,6 +27,5 @@ export default class RegisterCommand {
                 { body: commands },
             );
         }
-        console.log('Successfully reloaded application (/) commands.');
     } 
 }

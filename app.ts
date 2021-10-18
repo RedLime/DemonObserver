@@ -336,7 +336,8 @@ async function run() {
                 const channel = client.channels.cache.get(element.target);
                 if (channel?.isText() && Utils.isCanSend(client, channel as TextChannel | undefined)) {
                     const embed = notification.convertEmbed(connection, (channel as TextChannel | undefined)?.guildId ?? "");
-                    channel?.send({ content: element.mention_role != 0 ? `<@&${element.mention_role}>`: undefined, embeds: [await embed] });
+                    channel?.send({ content: element.mention_role != 0 ? `<@&${element.mention_role}>`: undefined, embeds: [await embed] })
+                        .catch(reason => console.log(reason));
                     serverCount++;
                 }
             }

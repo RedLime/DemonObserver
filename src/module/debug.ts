@@ -11,18 +11,11 @@ export default class Debug {
     }
     
     log(prefix: any, context: any, obj: any = null, send = true) {
-        console.log(`[${this.dateFormat(new Date())}] (${prefix}) ${context}`);
-        if (obj) {
-            console.log(obj);
-            console.log("");
-        }
+        process.stdout.write(`[${this.dateFormat(new Date())}] (${prefix}) ${context}\r`);
         if (send && this.client) {
             const channel = this.client.channels.cache.get(settings.bot_log_channel) as TextChannel;
             if (channel && Utils.isCanSend(this.client, channel)) {
                 channel.send(`[${this.dateFormat(new Date())}] (${prefix}) ${context}`);
-                if (obj) {
-                    channel.send(""+obj || "?");
-                }
             }
         }
     };
