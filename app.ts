@@ -168,7 +168,6 @@ async function run() {
             }
         
             const result = rawData.levels;
-            debug.log("GDServer", `A ${result.length} levels were cached. (Page : ${currentGDPage})`, null, false);
             if (result.length > 0) {
             
                 const updateList: Array<Demon> = [];
@@ -214,7 +213,7 @@ async function run() {
                     +` ON DUPLICATE KEY UPDATE level_id = VALUES(level_id), difficulty = VALUES(difficulty), level_name = VALUES(level_name), level_description = VALUES(level_description), level_version = VALUES(level_version), author_name = VALUES(author_name),`
                     +` author_id = VALUES(author_id), level_length = VALUES(level_length), downloads = VALUES(downloads), likes = VALUES(likes), ingame_version = VALUES(ingame_version), coins = VALUES(coins), coins_verified = VALUES(coins_verified), creator_points = VALUES(creator_points)`);
         
-                debug.log("GDServer", `A ${result.length} levels were updated, ${saveCount} levels were saved.`, null, false);
+                debug.log("GDServer", `A ${result.length} levels were updated, ${saveCount} levels were saved. (Page : ${currentGDPage})`, null, false);
             }
         
             if (result.length < 10) {
