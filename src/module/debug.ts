@@ -11,6 +11,8 @@ export default class Debug {
     }
     
     log(prefix: any, context: any, obj: any = null, send = true) {
+        process.stdout.clearLine(0);
+        process.stdout.cursorTo(0);
         process.stdout.write(`[${this.dateFormat(new Date())}] (${prefix}) ${context}\r`);
         if (send && this.client) {
             const channel = this.client.channels.cache.get(settings.bot_log_channel) as TextChannel;
