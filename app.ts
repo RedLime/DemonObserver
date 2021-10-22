@@ -332,12 +332,14 @@ async function run() {
             const [channels] = <RowDataPacket[][]> await connection.query(`SELECT channel_${notificationType} as 'target', mention_role FROM guild_settings WHERE channel_${notificationType} != 0 AND enable_${notificationType} != 0`);
 
             for await (const element of channels) {
-                const channel = client.channels.cache.get(element.target);
-                if (channel?.isText() && Utils.isCanSend(client, channel as TextChannel | undefined)) {
-                    const embed = notification.convertEmbed(connection, (channel as TextChannel | undefined)?.guildId ?? "");
-                    channel?.send({ content: element.mention_role != 0 ? `<@&${element.mention_role}>`: undefined, embeds: [await embed] })
-                        .catch(reason => console.log(reason));
-                    serverCount++;
+                try {
+                    const channel = client.channels.cache.get(element.target);
+                    if (channel?.isText() && Utils.isCanSend(client, channel as TextChannel | undefined)) {
+                        const embed = notification.convertEmbed(connection, (channel as TextChannel | undefined)?.guildId ?? "");
+                        channel?.send({ content: element.mention_role != 0 ? `<@&${element.mention_role}>`: undefined, embeds: [await embed] });
+                        serverCount++;
+                    }
+                } catch (e) {
                 }
             }
 
