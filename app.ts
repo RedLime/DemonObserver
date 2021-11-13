@@ -247,7 +247,7 @@ async function run() {
                 currentUnPage = 0;
             }
             
-            const inteval = (demonCount/10)*(config.gd_server_search_period + config.gd_server_search_period_random)*100;
+            const inteval = (demonCount/10)*(config.gd_server_search_period + config.gd_server_search_period_random)*10;
             const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id FROM `gd_demons` WHERE last_update < DATE_SUB(NOW(), INTERVAL '+inteval+' SECOND)');
             
             if (levels && levels.length) {
