@@ -10,7 +10,7 @@ export default class Utils {
      */
     static isCanSend(client: Discord.Client | undefined, channel: TextChannel | undefined): boolean {
         if (!(client && channel && channel.guild.me)) return false
-        return channel.permissionsFor(channel.guild.me).has(["SEND_MESSAGES", "EMBED_LINKS"]) ?? false;
+        return channel.permissionsFor(channel.guild.me).has(["SEND_MESSAGES", "EMBED_LINKS", "VIEW_CHANNEL"]) ?? false;
     };
     
 
