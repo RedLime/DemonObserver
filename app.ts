@@ -310,6 +310,11 @@ async function run() {
 
     /*-------------------------------------*/
 
+    const wait = async (ms: number) => {
+        return new Promise(
+            resolve => setTimeout(resolve, ms)
+        );
+    }
 
     //Notifications stacking
     const sendNotifications = async () => {
@@ -331,6 +336,7 @@ async function run() {
                     }
                 } catch (e) {
                 }
+                await wait(100);
             }
 
             debug.log("GDServer", `Level - ${notification.demon.id}(${notification.demon.name}) was ${notificationType}. (to ${serverCount} servers)`);
