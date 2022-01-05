@@ -85,7 +85,7 @@ async function run() {
         //Discord Bot Info Refreshing
         const refresh = async () => {
             const [[result]] = <RowDataPacket[][]> await connection.query('SELECT COUNT(*) as `count` FROM `gd_demons`');
-            client?.user?.setPresence({status: "online", activities: [{name: '👀 Observing '+result.count+' Demons'}]});
+            client?.user?.setPresence({status: "online", activities: [{name: result.count+' Demons', type: 'WATCHING'}]});
             demonCount = result.count;
             setTimeout(async () => {
                 refresh();
