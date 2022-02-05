@@ -332,7 +332,11 @@ async function run() {
                 await wait(100);
             }
 
-            debug.log("GDServer", `Level - ${notification.demon.id}(${notification.demon.name}) was ${notificationType}. (to ${serverCount} servers)`);
+            if (notification instanceof UnrateNotification) {
+                debug.log("GDServer", `Level - ${notification.demon.level_id}(${notification.demon.level_name}) was ${notificationType}. (to ${serverCount} servers)`);
+            } else {
+                debug.log("GDServer", `Level - ${notification.demon.id}(${notification.demon.name}) was ${notificationType}. (to ${serverCount} servers)`);
+            }
         } else if (notification && !isReady) {
             debug.log("GDServer", `Level - ${notification.demon.id}(${notification.demon.name}) was Added.`);
         }
