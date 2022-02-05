@@ -5,7 +5,7 @@ import * as Locale from '../module/localize'
 import mysql, { RowDataPacket } from 'mysql2/promise'
 
 export interface Notification {
-    demon: Demon
+    demon: Demon | RowDataPacket
     getType(): NotificationType
     convertEmbed(connection: mysql.Pool, guild_id: string | number): Promise<Discord.MessageEmbed>
 }
@@ -28,7 +28,7 @@ export class AwardNotification implements Notification {
     }
 }
 export class UnrateNotification implements Notification {
-    constructor(public demon: Demon) {}
+    constructor(public demon: RowDataPacket) {}
     
     public getType() {
         return NotificationType.UNRATED
@@ -38,11 +38,12 @@ export class UnrateNotification implements Notification {
         return new Discord.MessageEmbed()
         .setAuthor("DemonObserver", config.icon_url)
         .setTitle(await Locale.getLocaleMessageGuild(connection, guild_id, "MESSAGE_UNRATED_DEMON"))
-        .addField(await Locale.getLocaleMessageGuild(connection, guild_id, "LEVEL_INFO"), `ID : __${this.demon.id}__ (**${this.demon.name}** by ${this.demon.author})`)
+        .addField(await Locale.getLocaleMessageGuild(connection, guild_id, "LEVEL_INFO"), `ID : __${this.demon.level_id}__ (**${this.demon.level_name}** by ${this.demon.author_name})`)
         .setColor('#d32256')
         .setThumbnail(`https://gdbrowser.com/assets/difficulties/unrated.png`)
         .setTimestamp();
-    }}
+    }
+}
 export class UpdateNotification implements Notification {
     constructor(public demon: Demon, public prevVersion: number, public currVersion: number) {}
     

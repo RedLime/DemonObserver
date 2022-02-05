@@ -21,6 +21,8 @@ export interface GDFilter {
     twoPlayer?: number
     coins?: number
     epic?: number
+    noStar?: number
+    completedLevels?: string
 }
 
 export interface GDAuthor {
@@ -42,18 +44,18 @@ export default class Notify {
 
     static async getGJLevels(filter: GDFilter): Promise<GJLevelsResult> {
         filter.secret = 'Wmfd2893gb7';
-        filter.gameVersion = 21;
-        filter.binaryVersion = 35;
-        filter.gdw = 0;
-        filter.len = "-";
-        filter.total = 0;
-        filter.uncompleted = 0;
-        filter.onlyCompleted = 0;
-        filter.featured = 0;
-        filter.original = 0;
-        filter.twoPlayer = 0;
-        filter.coins = 0;
-        filter.epic = 0;
+        filter.gameVersion ||= 21;
+        filter.binaryVersion ||= 35;
+        filter.gdw ||= 0;
+        filter.len ||= "-";
+        filter.total ||= 0;
+        filter.uncompleted ||= 0;
+        filter.onlyCompleted ||= 0;
+        filter.featured ||= 0;
+        filter.original ||= 0;
+        filter.twoPlayer ||= 0;
+        filter.coins ||= 0;
+        filter.epic ||= 0;
     
         try {
             const options = {

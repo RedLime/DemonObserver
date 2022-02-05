@@ -26,7 +26,7 @@ import InteractionManager from './src/module/interaction';
 //setup variable
 var debug: Debug, interactionManager: InteractionManager
 const notifyStacks: Array<Notification> = [];
-var demonCount = 0, currentGDPage = 0, currentUnPage = 0, currentPCPage = 0, awardedPage = false;
+var demonCount = 0, currentGDPage = 0, currentPCPage = 0, awardedPage = false;
 var isSetup = fs.existsSync(path.join(path.resolve(), `/.setup`));
 var isReady = fs.existsSync(path.join(path.resolve(), `/.ready`));
 
@@ -239,50 +239,43 @@ async function run() {
     const cachingUnrates = async () => {
         setTimeout(async () => {
             cachingUnrates();
-            
-            const inteval = (demonCount/10)*(config.gd_server_search_period + config.gd_server_search_period_random)*10;
-            const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id FROM `gd_demons` WHERE last_update < DATE_SUB(NOW(), INTERVAL '+inteval+' SECOND)');
-            
-            if (levels && levels.length) {
-                //request GD Server
-                const rawData = await Notify.getGJLevels({page: currentGDPage, type: 10, str: levels.map(lvl => lvl.level_id).join(",")});
-    
-                //Error or Empty
-                if (rawData.total == 0 || rawData.result == "error") {
-                    currentUnPage = 0;
-                } else {
-                    const result = rawData.levels;
-                    debug.log("GDServer", `A ${result.length} levels were cached for check unrate. (Page : ${currentGDPage})`, null, false);
-                    
-                    const unrateList: Array<Demon> = [];
+        }, ((config.gd_server_search_period * 1000) + (Math.random() * config.gd_server_search_period_random))*100);
+
+        const [levels] = <RowDataPacket[][]> await connection.query('SELECT * FROM `gd_demons` ORDER BY `gd_demons`.`last_update` ASC LIMIT 5');
         
-                    //Level Unrate Check
-                    for await (const element of levels) {
-                        const idx = result.findIndex(level => level.id == element.level_id);
-                        if (idx != -1) {
-                            const target = result[idx];
-                            if (!target.isDemon) {
-                                unrateList.push(target);
-                                const notifiData: UnrateNotification = new UnrateNotification(target)
-                                notifyStacks.push(notifiData);
-                                await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UNRATED, ""]);
-                            }
-                        }
-                    }
-        
-                    if (unrateList.length) {
-                        await connection.query(
-                            `DELETE FROM gd_demons WHERE level_id IN (${unrateList.map(d => d.id).join(",")})`);
-                        debug.log("GDServer", `A ${unrateList.length} levels were deleted.`, null, false);
-                    }
+        if (levels && levels.length) {
+            //request GD Server
+            const rawData = await Notify.getGJLevels({type: 4, completedLevels: "("+levels.map(lvl => lvl.level_id).join(",")+")", onlyCompleted: 1});
+
+            //Error or Empty
+            if (!(rawData.total == 0 || rawData.result == "error"))  {
+                const result = rawData.levels;
+                debug.log("GDServer", `A ${result.length} levels were cached for check unrate.`, null, false);
                 
-                    if (result.length < 10) {
-                        currentUnPage = 0;
+                const ratedList: Array<Demon> = [];
+                const unrateList: Array<any> = [];
+    
+                //Level Unrate Check
+                for await (const element of levels) {
+                    const idx = result.findIndex(level => level.id == element.level_id);
+                    if (idx != -1) {
+                        const target = result[idx];
+                        if (target.isDemon) ratedList.push(target);
+                    } else {
+                        const notifiData: UnrateNotification = new UnrateNotification(element);
+                        notifyStacks.push(notifiData);
+                        await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.level_id, NotificationType.UNRATED, ""]);
+                        unrateList.push(element);
                     }
-                    else currentUnPage++;
+                }
+    
+                if (unrateList.length) {
+                    await connection.query(
+                        `DELETE FROM gd_demons WHERE level_id IN (${unrateList.map(d => d.level_id).join(",")})`);
+                    debug.log("GDServer", `A ${unrateList.length} levels were deleted.`, null, false);
                 }
             }
-        }, (demonCount/10)*(config.gd_server_search_period + config.gd_server_search_period_random)*10000);
+        }
     }
 
     /*-------------------------------------*/
