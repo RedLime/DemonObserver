@@ -89,7 +89,7 @@ async function run() {
             demonCount = result.count;
             setTimeout(async () => {
                 refresh();
-            }, 1000 * 60 * 5);
+            }, 1000 * 60 * 10);
         }
         await refresh();
 
@@ -266,6 +266,7 @@ async function run() {
                         notifyStacks.push(notifiData);
                         await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.level_id, NotificationType.UNRATED, ""]);
                         unrateList.push(element);
+                        demonCount--;
                     }
                 }
     
