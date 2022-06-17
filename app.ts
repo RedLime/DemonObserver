@@ -162,7 +162,7 @@ async function run() {
                     }, (config.gd_server_search_period + config.gd_server_search_period_random)*10000);
                 }
             } else {
-                const result = rawData.levels;
+                const result = rawData.levels.filter(lvl => lvl.id != NaN);
                 if (result.length > 0) {
                 
                     const updateList: Array<Demon> = [];
@@ -248,7 +248,7 @@ async function run() {
             const rawData = await Notify.getGJLevels({type: 4, completedLevels: "("+levels.map(lvl => lvl.level_id).join(",")+")", onlyCompleted: 1});
 
             //Error or Empty
-            if (!(rawData.total == 0 || rawData.result == "error"))  {
+            if (rawData.total > 0 && rawData.result != "error")  {
                 const result = rawData.levels;
                 debug.log("GDServer", `A ${result.length} levels were cached for check unrate.`, null, false);
                 

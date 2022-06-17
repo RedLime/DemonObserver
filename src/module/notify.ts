@@ -93,7 +93,7 @@ export default class Notify {
                     levelData[+levelRaw[i]] = levelRaw[i+1];
                 }
                 return levelData;
-            }).map((lvl: GDLevelData) => new Demon(lvl, authorList[lvl[6]] ?? "-"));
+            }).map((lvl: GDLevelData) => new Demon(lvl, authorList[lvl[6]] ?? "-")).filter((lvl: Demon) => lvl != null);
     
             return result;
         } catch (err) {
