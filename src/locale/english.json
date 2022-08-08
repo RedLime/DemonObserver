@@ -28,7 +28,7 @@
     "MESSAGE_NEW_AWARDED_DEMON": "A new Demon has awarded! (No.{0} Demon)",
     "MESSAGE_CHANGE_DIFFICULTY_RATE_DEMON": "Demon difficulty rating has changed!",
     "MESSAGE_UPDATED_DEMON": "Just recently, this level has been updated.",
-    "MESSAGE_UNRATED_DEMON": "Sadly, this Demon has been unrated. :sob:",
+    "MESSAGE_UNRATED_DEMON": "This level has been changed to not demon. :sob:",
     "MESSAGE_UNRATED_REASON_UNRATE_ONLY": "This level has been unrated by RobTop.",
     "MESSAGE_UNRATED_REASON_RERATE_DIFFICULTY": "This level has been changed to non_Demon difficulty.",
     "MESSAGE_UNRATED_REASON_DELETED": "This level has been deleted from the server.",

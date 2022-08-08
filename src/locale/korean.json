@@ -28,7 +28,7 @@
     "MESSAGE_NEW_AWARDED_DEMON": "새로운 데몬이 레이팅 되었습니다! ({0}번째 데몬)",
     "MESSAGE_UPDATED_DEMON": "방금 이 레벨이 업데이트가 되었습니다.",
     "MESSAGE_CHANGE_DIFFICULTY_RATE_DEMON": "데몬 레이팅이 변동되었습니다!",
-    "MESSAGE_UNRATED_DEMON": "슬프게도, 별이 박탈된 데몬이 생겼습니다. :sob:",
+    "MESSAGE_UNRATED_DEMON": "데몬 레이팅이 박탈된 데몬이 생겼습니다. :sob:",
     "MESSAGE_UNRATED_REASON_UNRATE_ONLY": "레벨의 별이 박탈되었습니다.",
     "MESSAGE_UNRATED_REASON_RERATE_DIFFICULTY": "레벨이 데몬이 아닌 다른 난이도로 변경되었습니다.",
     "MESSAGE_UNRATED_REASON_DELETED": "레벨이 서버에서 삭제되었습니다.",
