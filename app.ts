@@ -252,7 +252,6 @@ async function run() {
                 const result = rawData.levels;
                 debug.log("GDServer", `A ${result.length} levels were cached for check unrate.`, null, false);
                 
-                const ratedList: Array<Demon> = [];
                 const unrateList: Array<any> = [];
     
                 //Level Unrate Check
@@ -260,14 +259,14 @@ async function run() {
                     const idx = result.findIndex(level => level.id == element.level_id);
                     if (idx != -1) {
                         const target = result[idx];
-                        if (target.isDemon) ratedList.push(target);
-                    } else {
-                        const notifiData: UnrateNotification = new UnrateNotification(element);
-                        notifyStacks.push(notifiData);
-                        await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.level_id, NotificationType.UNRATED, ""]);
-                        unrateList.push(element);
-                        demonCount--;
+                        if (target.isDemon) continue;
                     }
+                    
+                    const notifiData: UnrateNotification = new UnrateNotification(element);
+                    notifyStacks.push(notifiData);
+                    await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.level_id, NotificationType.UNRATED, ""]);
+                    unrateList.push(element);
+                    demonCount--;
                 }
     
                 if (unrateList.length) {
