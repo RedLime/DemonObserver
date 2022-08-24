@@ -74,7 +74,7 @@ export default class DemonsCommand extends CommandUserInteraction {
             const file = new MessageAttachment(image, "info.jpeg");
             
             const resultEmbed = await result(await this.localeMessage("MESSAGE_LAST_WEEK_DEMONS_CHANGE_AMOUNT"), toChangeString(demonData.easy), toChangeString(demonData.medium), toChangeString(demonData.hard), toChangeString(demonData.insane), toChangeString(demonData.extreme), toChangeString(demonData.total));
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
+            this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
         } else if (type == 1) {
             //레이팅 종류
             const [demonCounts] = <RowDataPacket[][]> await this.connection.query('SELECT creator_points, COUNT(case when difficulty=0 then 1 end) as `hard`, '
@@ -94,7 +94,7 @@ export default class DemonsCommand extends CommandUserInteraction {
             const file = new MessageAttachment(image, "info.jpeg");
             
             const resultEmbed = await result(await this.localeMessage("MESSAGE_CP_DEMONS_AMOUNT"), toChangeString('easy'), toChangeString('medium'), toChangeString('hard'), toChangeString('insane'), toChangeString('extreme'), toChangeString('total'));
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
+            this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
         } else if (type == 2) {
             //길이
             const [demonCounts] = <RowDataPacket[][]> await this.connection.query('SELECT level_length, COUNT(case when difficulty=0 then 1 end) as `hard`, '
@@ -114,7 +114,7 @@ export default class DemonsCommand extends CommandUserInteraction {
             const file = new MessageAttachment(image, "info.jpeg");
             
             const resultEmbed = await result(await this.localeMessage("MESSAGE_LENGTH_DEMONS_AMOUNT"), toChangeString('easy'), toChangeString('medium'), toChangeString('hard'), toChangeString('insane'), toChangeString('extreme'), toChangeString('total'));
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
+            this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
         } else {
             //업로드된 버전
             const [demonCounts] = <RowDataPacket[][]> await this.connection.query('SELECT ingame_version, COUNT(case when difficulty=0 then 1 end) as `hard`, '
@@ -134,7 +134,7 @@ export default class DemonsCommand extends CommandUserInteraction {
             const file = new MessageAttachment(image, "info.jpeg");
             
             const resultEmbed = await result(await this.localeMessage("MESSAGE_VERSION_DEMONS_AMOUNT"),toChangeString('easy'), toChangeString('medium'),toChangeString('hard'), toChangeString('insane'),toChangeString('extreme'), toChangeString('total'));
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
+            this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [resultEmbed.setImage("attachment://info.jpeg")], files: [file]}));
         }
     }
 

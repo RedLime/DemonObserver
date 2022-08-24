@@ -14,7 +14,7 @@ for (const file of commandFiles) {
 
 export default class RegisterCommand {
     static async registerCommands(client: Client) {
-        const rest = new REST({ version: '9' }).setToken(config.bot_token);
+        const rest = new REST({ version: '10' }).setToken(config.bot_token);
 
         if (config.debug) {
             await rest.put(

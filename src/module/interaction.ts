@@ -61,6 +61,7 @@ export default class InteractionManager {
             logChannel.send(logMessage);
             lastLogMessage = logMessage;
         }
+        await interaction.deferReply();
 
         // about , help
         if (interaction.commandName == "about" || interaction.commandName == "help") {
@@ -104,6 +105,7 @@ export default class InteractionManager {
             interaction.deferUpdate();
             return;
         } 
+        await interaction.deferReply();
         
         const interactionData = interaction.customId.split("||")[1].split(":");
         if (interactionData[0] == "recent") {
@@ -121,11 +123,10 @@ export default class InteractionManager {
     }
 
     async onClickedMenu(interaction: SelectMenuInteraction) {
-        
         if (interaction.user.id != interaction.customId.split("||")[0]) {
-            interaction.deferUpdate();
             return;
         } 
+        await interaction.deferReply();
         
         const interactionData = interaction.customId.split("||")[1].split(":");
         if (interactionData[0] == "recent") {
