@@ -1,4 +1,4 @@
-import request from 'request-promise';
+import fetch from 'node-fetch';
 import Demon from '../classes/demon';
 import config from '../../config/settings.json';
 
@@ -23,6 +23,17 @@ export interface GDFilter {
     epic?: number
     noStar?: number
     completedLevels?: string
+
+}
+
+function GDFilterToURLSearchParams(filter: GDFilter): URLSearchParams {
+
+    const result = new URLSearchParams();
+    for (const [key, value] of Object.entries(filter)) {
+        result.append(key, value);
+    }
+
+    return result;
 }
 
 export interface GDAuthor {
@@ -58,13 +69,7 @@ export default class Notify {
         filter.epic ||= 0;
     
         try {
-            const options = {
-                method: 'POST',
-                uri: config.gd_server_search_url,
-                form: filter
-            };
-    
-            let rawData = await request(options);
+            let rawData = await (await fetch(config.gd_server_search_url, { method: 'POST', body: GDFilterToURLSearchParams(filter) })).text();
             if (rawData.startsWith("<br />")) rawData = rawData.split("<br />").slice(2).join("<br />").trim();
             if (!rawData) {
                 return { total: 0, offset: 0, levels: [], result: "block" };
@@ -76,7 +81,7 @@ export default class Notify {
             const gjData = rawData.split("#");
             const pageInfo = gjData[3].split(":");
     
-            const result: GJLevelsResult = { total: pageInfo[0], offset: pageInfo[1], result: "success", levels: [] };
+            const result: GJLevelsResult = { total: +pageInfo[0], offset: +pageInfo[1], result: "success", levels: [] };
             if (!gjData[0]) return result;
     
             const authors = gjData[1].split("|"), authorList: GDAuthor = {};
@@ -108,7 +113,7 @@ export default class Notify {
                 uri: 'https://pointercrate.com/api/v2/demons/listed/?limit=100&after='+(rank*100),
             };
     
-            let rawData = await request(options);
+            let rawData = await (await fetch('https://pointercrate.com/api/v2/demons/listed/', { method: 'GET', body: 'limit=100&after='+(rank*100) })).text();
             return JSON.parse(rawData);
         } catch (err) {
             return [];

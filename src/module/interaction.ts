@@ -62,6 +62,8 @@ export default class InteractionManager {
             lastLogMessage = logMessage;
         }
 
+        await interaction.deferReply();
+
         // about , help
         if (interaction.commandName == "about" || interaction.commandName == "help") {
             new AboutCommand(this.connection, interaction, emojis).execute();
@@ -99,11 +101,12 @@ export default class InteractionManager {
     }
 
     async onClickedButton(interaction: ButtonInteraction) {
-        
         if (interaction.user.id != interaction.customId.split("||")[0]) {
-            interaction.deferUpdate();
+            interaction.deleteReply();
             return;
         } 
+
+        await interaction.deferReply();
         
         const interactionData = interaction.customId.split("||")[1].split(":");
         if (interactionData[0] == "recent") {
@@ -121,11 +124,12 @@ export default class InteractionManager {
     }
 
     async onClickedMenu(interaction: SelectMenuInteraction) {
-        
         if (interaction.user.id != interaction.customId.split("||")[0]) {
-            interaction.deferUpdate();
+            interaction.deleteReply();
             return;
         } 
+        
+        await interaction.deferReply();
         
         const interactionData = interaction.customId.split("||")[1].split(":");
         if (interactionData[0] == "recent") {

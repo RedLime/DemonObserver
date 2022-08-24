@@ -24,7 +24,7 @@ export class ChallengeCommand extends CommandUserInteraction {
                     .setLabel(await this.localeMessage("NEXT_CHALLENGE"))
                     .setCustomId(`${this.interaction.user.id}||challenge:create:${filter}:${skips}`);
                 const actionRow = new MessageActionRow().addComponents([nextChallenge]);
-                this.interaction.reply({ embeds: [embed], components: [actionRow] });
+                this.interaction.editReply({ embeds: [embed], components: [actionRow] });
             } else {
                 const embed = new MessageEmbed()
                     .setTitle(await this.localeMessage("WARNING"))
@@ -40,7 +40,7 @@ export class ChallengeCommand extends CommandUserInteraction {
                     .setCustomId(`${this.interaction.user.id}||challenge:last`);
                 const actionRow = new MessageActionRow()
                     .addComponents([createChallenge, loadChallenge]);
-                this.interaction.reply({ embeds: [embed], components: [actionRow] });
+                this.interaction.editReply({ embeds: [embed], components: [actionRow] });
             }
         }
         if (subCommand == "current") {
@@ -50,13 +50,13 @@ export class ChallengeCommand extends CommandUserInteraction {
                     .setTitle(await this.localeMessage("ERROR"))
                     .setColor([255,0,0])
                     .setDescription(await this.localeMessage("MESSAGE_ERROR_NOT_FOUND_CHALLENGE"));
-                this.interaction.reply({ embeds: [errorEmbed] });
+                this.interaction.editReply({ embeds: [errorEmbed] });
             } else {
-                this.interaction.reply(await loadChallengeProcess(this, lastChallenge));
+                this.interaction.editReply(await loadChallengeProcess(this, lastChallenge));
             }
         }
         if (subCommand == "info") {
-            this.interaction.reply(await loadChallengeInfo(this, this.interaction.options.getInteger("id") ?? 0, 0));
+            this.interaction.editReply(await loadChallengeInfo(this, this.interaction.options.getInteger("id") ?? 0, 0));
         }
     }
     

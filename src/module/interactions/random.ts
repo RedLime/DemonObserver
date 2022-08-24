@@ -36,7 +36,7 @@ export default class RandomCommand extends CommandUserInteraction {
                 .setTitle(await this.localeMessage("ERROR"))
                 .setColor([255,0,0])
                 .setDescription(await this.localeMessage("MESSAGE_ERROR_RANDOM_DEMON_TOO_FEW"))
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [errorEmbed]}));
+            this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [errorEmbed]}));
         } else if (drawOption > 1) {
             const resultContent = resultDemons.map(demon => {
                 let rawLogs = `- ${this.emojis[Demon.getRateEmojiText(+demon.difficulty, +demon.creator_points)]} __${demon.level_id}__ (**${demon.level_name}** by ${demon.author_name})`;
@@ -49,7 +49,7 @@ export default class RandomCommand extends CommandUserInteraction {
             const embed = new MessageEmbed()
                 .setTitle(await this.localeMessage("MESSAGE_RANDOM_DEMON"))
                 .addField(await this.localeMessage("LIST"), resultContent);
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [embed]}));
+            this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [embed]}));
         } else {
             const [resultDemon] = resultDemons;
             const embed = new MessageEmbed()
@@ -67,7 +67,7 @@ export default class RandomCommand extends CommandUserInteraction {
                 };
                 embed.addField(await this.localeMessage("DEMONLIST_RANK"), await dlData(resultDemon));
             }
-            this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [embed]}));
+            this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [embed]}));
         }
     }
 }

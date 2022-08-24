@@ -1,5 +1,5 @@
 
-import { MessageActionRow, MessageButton, MessageEmbed, MessageOptions, MessageSelectOptionData, MessageSelectMenu, Permissions, GuildMember, TextChannel, TextBasedChannels } from "discord.js";
+import { MessageActionRow, MessageButton, MessageEmbed, MessageOptions, MessageSelectOptionData, MessageSelectMenu, Permissions, GuildMember, TextChannel } from "discord.js";
 import { RowDataPacket } from "mysql2/promise";
 import { ButtonUserInteraction, CommandUserInteraction, MenuUserInteraction, UserInteraction } from "../../classes/interaction";
 import { updateLocale, LocaleType } from "../localize";
@@ -18,7 +18,7 @@ export class ConfigCommand extends CommandUserInteraction {
         
         if (!member.permissions.has(Permissions.FLAGS.ADMINISTRATOR) && !(serverConfig.admin_role && member.roles.cache.has(serverConfig.admin_role))) {
             const title = serverConfig.admin_role && serverConfig.admin_role != "0" ? await this.localeMessage("MESSAGE_INVAILD_PERMISSION_ROLE", [serverConfig.admin_role]) : await this.localeMessage("MESSAGE_INVAILD_PERMISSION");
-            this.interaction.reply({ embeds: [new MessageEmbed()
+            this.interaction.editReply({ embeds: [new MessageEmbed()
                 .setTitle(await this.localeMessage("ERROR")).setDescription(title).setColor([255,0,0])]})
             return;
         }
@@ -30,7 +30,7 @@ export class ConfigCommand extends CommandUserInteraction {
                 const embed = new MessageEmbed()
                     .setTitle(await this.localeMessage("MESSAGE_CURRENT_LANGUAGE") + ": " 
                     + (!serverConfig.language ? "English" : "한국어"));
-                this.interaction.reply({embeds: [embed]});
+                this.interaction.editReply({embeds: [embed]});
             } else {
                 try {
                     updateLocale(this.connection, this.interaction.guildId, +target as LocaleType);
@@ -41,9 +41,9 @@ export class ConfigCommand extends CommandUserInteraction {
                     const embed = new MessageEmbed()
                         .setTitle(await this.localeMessage("MESSAGE_SUCCESS_CHANGE_LANGUAGE"))
                         .setColor([0,255,0]);
-                    this.interaction.reply({embeds: [embed]});
+                    this.interaction.editReply({embeds: [embed]});
                 } catch {
-                    this.interaction.reply({ embeds: [new MessageEmbed()
+                    this.interaction.editReply({ embeds: [new MessageEmbed()
                         .setTitle(await this.localeMessage("ERROR")).setColor([255,0,0])]});
                 }
             }
@@ -54,7 +54,7 @@ export class ConfigCommand extends CommandUserInteraction {
                 const embed = new MessageEmbed()
                     .setTitle(await this.localeMessage("MESSAGE_CURRENT_MENTION"))
                     .setDescription(`** : ${serverConfig.mention_role && serverConfig.mention_role != "0" ? `<@${serverConfig.mention_role}>` : await this.localeMessage("NOTHING")}**`);
-                this.interaction.reply({embeds: [embed]});
+                this.interaction.editReply({embeds: [embed]});
             }
             if (this.interaction.options.getSubcommand() == "enable") {
                 await this.connection.query(
@@ -64,7 +64,7 @@ export class ConfigCommand extends CommandUserInteraction {
                 const embed = new MessageEmbed()
                     .setTitle(await this.localeMessage("MESSAGE_SUCCESS_ENABLE_MENTION"))
                     .setColor([0,255,0]);
-                this.interaction.reply({embeds: [embed]});
+                this.interaction.editReply({embeds: [embed]});
             }
             if (this.interaction.options.getSubcommand() == "disable") {
                 await this.connection.query(
@@ -74,7 +74,7 @@ export class ConfigCommand extends CommandUserInteraction {
                 const embed = new MessageEmbed()
                     .setTitle(await this.localeMessage("MESSAGE_SUCCESS_DISABLE_MENTION"))
                     .setColor([0,255,0]);
-                this.interaction.reply({embeds: [embed]});
+                this.interaction.editReply({embeds: [embed]});
             }
         }
 
@@ -87,7 +87,7 @@ export class ConfigCommand extends CommandUserInteraction {
             const embed = new MessageEmbed()
                 .setTitle(await this.localeMessage("MESSAGE_SUCCESS_SET_ADMINROLE"))
                 .setColor([0,255,0]);
-            this.interaction.reply({embeds: [embed]});
+            this.interaction.editReply({embeds: [embed]});
         }
 
         if (this.interaction.options.getSubcommand() == "list") {
@@ -113,7 +113,7 @@ export class ConfigCommand extends CommandUserInteraction {
                     + `\n**Extreme Demon** - <#${serverConfig.channel_extreme}>, `
                     + `${await this.localeMessage(serverConfig.enable_extreme ? "ENABLED" : "DISABLED")}`)
                 .addField(await this.localeMessage("MESSAGE_CURRENT_MENTION"), serverConfig.mention_role && serverConfig.mention_role != "0" ? `<@&${serverConfig.mention_role}>` : await this.localeMessage("NOTHING"));
-            this.interaction.reply({embeds: [embed]});
+            this.interaction.editReply({embeds: [embed]});
         }
 
         if (this.interaction.options.getSubcommand() == "help") {
@@ -127,11 +127,11 @@ export class ConfigCommand extends CommandUserInteraction {
                     + `\n**__/config mention enable <${await this.localeMessage("ROLE")}>__** -  ${await this.localeMessage("MESSAGE_HELP_CONFIG_MENTION_ENABLE")}`
                     + `\n**__/config mention disable__** -  ${await this.localeMessage("MESSAGE_HELP_CONFIG_MENTION_DISABLE")}`)
                     .addField(await this.localeMessage("SHOW_ALL_CONFIGURATIONS"), `**__/config list__** - ${await this.localeMessage("MESSAGE_HELP_CONFIG_LIST")}`)
-            this.interaction.reply({embeds: [embed]});
+            this.interaction.editReply({embeds: [embed]});
         }
 
         if (this.interaction.options.getSubcommand() == "notification") {
-            this.interaction.reply(await loadNotificationConfig(this, serverConfig, 0, undefined, 0));
+            this.interaction.editReply(await loadNotificationConfig(this, serverConfig, 0, undefined, 0));
         }
     }
     

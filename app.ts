@@ -15,7 +15,7 @@ import Utils from './src/module/utils';
 import Commands from './src/module/command';
 
 //Config
-import config from './config/settings.json';
+import config from './config/settings.json' assert {type: "json"};
 
 //Class
 import Demon from './src/classes/demon';

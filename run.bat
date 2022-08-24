@@ -1,9 +1,8 @@
 @echo off
 cls
-echo This script will keep your bot running even after crashing!
-title DemonObserver Watchdog
+echo This script will keep your server running even after crashing!
+title GDKF v4 Watchdog
 :StartServer
 call npm start
-echo (%time%) Bot shutdowned or crashed... restarting!
-timeout 3
+echo (%time%) Server closed/crashed... restarting!
 goto StartServer

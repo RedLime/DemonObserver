@@ -1,6 +1,6 @@
 import { REST } from '@discordjs/rest';
-import { Routes } from 'discord-api-types/v9';
 import { Client } from 'discord.js';
+import { Routes } from "discord-api-types/v10";
 import config from '../../config/settings.json';
 import fs from 'fs';
 import path from 'path';
@@ -14,7 +14,7 @@ for (const file of commandFiles) {
 
 export default class RegisterCommand {
     static async registerCommands(client: Client) {
-        const rest = new REST({ version: '9' }).setToken(config.bot_token);
+        const rest = new REST({ version: '10' }).setToken(config.bot_token);
 
         if (config.debug) {
             await rest.put(

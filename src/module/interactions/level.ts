@@ -19,7 +19,7 @@ export class LevelCommand extends CommandUserInteraction {
             .setDescription(await this.localeMessage("MESSAGE_ERROR_NOT_FOUND_DEMON_INFO"))
 
         if (!level_id && !level_name) {
-            this.interaction.reply({embeds: [errorEmbed]});
+            this.interaction.editReply({embeds: [errorEmbed]});
             return;
         }
         
@@ -43,12 +43,12 @@ export class LevelCommand extends CommandUserInteraction {
                         .addField(await this.localeMessage("LIST"), 
                             searchDemons.sort((a,b) => Utils.similarity(level_name, b.level_name) - Utils.similarity(level_name, a.level_name))
                                 .map(demon => `- **${demon.level_name}** by *${demon.author_name}* (ID : __${demon.level_id}__)`).join("\n"));
-                    this.interaction.reply({embeds: [embed]});
+                    this.interaction.editReply({embeds: [embed]});
                 } else {
-                    this.interaction.reply({embeds: [errorEmbed]});
+                    this.interaction.editReply({embeds: [errorEmbed]});
                 }
             } else {
-                this.interaction.reply({embeds: [errorEmbed]});
+                this.interaction.editReply({embeds: [errorEmbed]});
             }
         } else {
             if (resultDemon.length > 1) {
@@ -71,9 +71,9 @@ export class LevelCommand extends CommandUserInteraction {
                 const embed = new MessageEmbed()
                     .setTitle(await this.localeMessage("MESSAGE_SAME_NAME_LEVELS"))
                     .setDescription(await this.localeMessage("MESSAGE_SELECT_LEVEL"));
-                this.interaction.reply({embeds: [embed], components: [new MessageActionRow().addComponents(levelOptions)]});
+                this.interaction.editReply({embeds: [embed], components: [new MessageActionRow().addComponents(levelOptions)]});
             } else {
-                this.interaction.reply(await loadLevelInfo(this, resultDemon[0], 0));
+                this.interaction.editReply(await loadLevelInfo(this, resultDemon[0], 0));
             }
         }
     }

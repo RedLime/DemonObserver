@@ -25,6 +25,6 @@ export default class AboutCommand extends CommandUserInteraction {
             .setURL('https://www.patreon.com/join/redlimerl/checkout?rid=0&cadence=1');
         const buttonComponent = new MessageActionRow()
             .addComponents(inviteButton, inviteServerButton, donateButton);
-        this.interaction.reply(MessagePayload.create(this.interaction, {embeds: [embed], components: [buttonComponent]}));
+        this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [embed], components: [buttonComponent]}));
     }
 }

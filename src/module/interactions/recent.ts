@@ -11,7 +11,7 @@ export class RecentCommand extends CommandUserInteraction {
 
     async execute(): Promise<void> {
         const filter = <NotificationTypeKey | "all" | null> this.interaction.options.getString("filter");
-        this.interaction.reply(await loadRecentArchives(this, filter || "all", 0));
+        this.interaction.editReply(await loadRecentArchives(this, filter || "all", 0));
     }
     
 }
