@@ -8,7 +8,7 @@ export default class Utils {
      * @param {Discord.Channel} channel channel 정보입니다.
      * @returns {boolean} 메세지를 보낼 수 있는지 여부
      */
-    static isCanSend(client: Discord.Client | undefined, channel: TextChannel | undefined): boolean {
+    static isCanSend(client, channel) {
         if (!(client && channel && channel.guild.me)) return false
         return channel.permissionsFor(channel.guild.me).has(["SEND_MESSAGES", "EMBED_LINKS", "VIEW_CHANNEL"]) ?? false;
     };
@@ -20,7 +20,7 @@ export default class Utils {
      * @param {string} s2 
      * @returns {number} 일치율
      */
-    static similarity(s1: string, s2: string): number {
+    static similarity(s1, s2) {
         var longer = s1;
         var shorter = s2;
         if (s1.length < s2.length) {
@@ -34,7 +34,7 @@ export default class Utils {
         return (longerLength - this.editDistance(longer, shorter)) / (longerLength * 1.0);
     }
 
-    private static editDistance(s1: string, s2: string) {
+    static editDistance(s1, s2) {
         s1 = s1.toLowerCase();
         s2 = s2.toLowerCase();
     

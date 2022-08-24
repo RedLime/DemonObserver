@@ -1,28 +1,26 @@
 
-import { Client, TextChannel } from 'discord.js';
-import settings from '../../config/settings.json';
-import Utils from './utils';
+import { TextChannel } from 'discord.js';
+import settings from '../../config/settings.json' assert {type: "json"};
+import Utils from './utils.js';
 
 export default class Debug {
-    client: Client<boolean> | null | undefined = null;
-    
-    constructor(client: Client) {
+    constructor(client) {
         this.client = client;
     }
     
-    log(prefix: any, context: any, obj: any = null, send = true) {
+    log(prefix, context, obj = null, send = true) {
         process.stdout.clearLine(0);
         process.stdout.cursorTo(0);
         process.stdout.write(`[${this.dateFormat(new Date())}] (${prefix}) ${context}\r`);
         if (send && this.client) {
-            const channel = this.client.channels.cache.get(settings.bot_log_channel) as TextChannel;
-            if (channel && Utils.isCanSend(this.client, channel)) {
+            const channel = this.client.channels.cache.get(settings.bot_log_channel);
+            if (channel && channel instanceof TextChannel && Utils.isCanSend(this.client, channel)) {
                 channel.send(`[${this.dateFormat(new Date())}] (${prefix}) ${context}`);
             }
         }
     };
     
-    logRaw(obj: any) {
+    logRaw(obj) {
         console.log(`[${this.dateFormat(new Date())}]`);
         console.log(obj);
         console.log("");
@@ -33,12 +31,12 @@ export default class Debug {
      * @param {Date} date
      * @returns {string} string으로 변환된 Date
      */
-    dateFormat(date: Date): string {
-        let month: number | string = date.getMonth() + 1;
-        let day: number | string = date.getDate();
-        let hour: number | string = date.getHours();
-        let minute: number | string = date.getMinutes();
-        let second: number | string = date.getSeconds();
+    dateFormat(date) {
+        let month = date.getMonth() + 1;
+        let day = date.getDate();
+        let hour = date.getHours();
+        let minute = date.getMinutes();
+        let second = date.getSeconds();
     
         month = month >= 10 ? month : '0' + month;
         day = day >= 10 ? day : '0' + day;

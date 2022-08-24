@@ -1,31 +1,30 @@
 //discord
-import Discord, { Intents, TextChannel } from 'discord.js';
+import Discord, { Intents } from 'discord.js';
 
 //mysql
-import mysql, { RowDataPacket } from 'mysql2/promise';
+import mysql from 'mysql2/promise';
 
 //path
 import * as fs from 'fs';
 import * as path from 'path';
 
 //Addons
-import Debug from './src/module/debug';
-import Notify from './src/module/notify';
-import Utils from './src/module/utils';
-import Commands from './src/module/command';
+import Debug from './src/module/debug.js';
+import Notify from './src/module/notify.js';
+import Utils from './src/module/utils.js';
+import Commands from './src/module/command.js';
 
 //Config
 import config from './config/settings.json' assert {type: "json"};
 
 //Class
-import Demon from './src/classes/demon';
-import { Notification, NotificationType, RerateNotification, UpdateNotification, AwardNotification, UnrateNotification } from './src/classes/notification';
-import InteractionManager from './src/module/interaction';
+import { NotificationType, RerateNotification, UpdateNotification, AwardNotification, UnrateNotification } from './src/classes/notification.js';
+import InteractionManager from './src/module/interaction.js';
 
 
 //setup variable
-var debug: Debug, interactionManager: InteractionManager
-const notifyStacks: Array<Notification> = [];
+var debug, interactionManager;
+const notifyStacks = [];
 var demonCount = 0, currentGDPage = 0, currentPCPage = 0, awardedPage = false;
 var isSetup = fs.existsSync(path.join(path.resolve(), `/.setup`));
 var isReady = fs.existsSync(path.join(path.resolve(), `/.ready`));
@@ -84,7 +83,7 @@ async function run() {
         
         //Discord Bot Info Refreshing
         const refresh = async () => {
-            const [[result]] = <RowDataPacket[][]> await connection.query('SELECT COUNT(*) as `count` FROM `gd_demons`');
+            const [[result]] = await connection.query('SELECT COUNT(*) as `count` FROM `gd_demons`');
             client?.user?.setPresence({status: "online", activities: [{name: result.count+' Demons', type: 'WATCHING'}]});
             demonCount = result.count;
             setTimeout(async () => {
@@ -165,8 +164,8 @@ async function run() {
                 const result = rawData.levels.filter(lvl => lvl.id != NaN);
                 if (result.length > 0) {
                 
-                    const updateList: Array<Demon> = [];
-                    const [levels] = <RowDataPacket[][]> await connection.query('SELECT level_id, difficulty, level_version FROM `gd_demons` WHERE level_id IN ('+ result.map(level => level.id).join(",") +')');
+                    const updateList = [];
+                    const [levels] = await connection.query('SELECT level_id, difficulty, level_version FROM `gd_demons` WHERE level_id IN ('+ result.map(level => level.id).join(",") +')');
             
                     //Level Update Check
                     for await (const element of levels) {
@@ -177,13 +176,13 @@ async function run() {
             
                             if (element.difficulty != target.difficulty) {
                                 saveCount++
-                                const notifiData: RerateNotification = new RerateNotification(target, element.difficulty, target.difficulty)
+                                const notifiData = new RerateNotification(target, element.difficulty, target.difficulty)
                                 notifyStacks.push(notifiData);
                                 await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`, `data2`) VALUES (?, ?, ?, ?)', [target.id, NotificationType.RERATED, element.difficulty, target.difficulty]);
                             }
                             if (element.level_version != target.version) {
                                 saveCount++
-                                const notifiData: UpdateNotification = new UpdateNotification(target, element.level_version, target.version)
+                                const notifiData = new UpdateNotification(target, element.level_version, target.version)
                                 notifyStacks.push(notifiData);
                                 await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [target.id, NotificationType.UPDATED, target.version]);
                             }
@@ -193,7 +192,7 @@ async function run() {
                     for await (const element of result) {
                         if (levels.findIndex(level => level.level_id == element.id) == -1) {
                             demonCount++;
-                            const notifiData: AwardNotification = new AwardNotification(element, demonCount);
+                            const notifiData = new AwardNotification(element, demonCount);
                             notifyStacks.push(notifiData);
                             await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.id, NotificationType.AWARDED, element.difficulty]);
                             saveCount++
@@ -241,7 +240,7 @@ async function run() {
             cachingUnrates();
         }, ((config.gd_server_search_period * 1000) + (Math.random() * config.gd_server_search_period_random))*100);
 
-        const [levels] = <RowDataPacket[][]> await connection.query('SELECT * FROM `gd_demons` ORDER BY `gd_demons`.`last_update` ASC LIMIT 5');
+        const [levels] = await connection.query('SELECT * FROM `gd_demons` ORDER BY `gd_demons`.`last_update` ASC LIMIT 5');
         
         if (levels && levels.length) {
             //request GD Server
@@ -252,7 +251,7 @@ async function run() {
                 const result = rawData.levels;
                 debug.log("GDServer", `A ${result.length} levels were cached for check unrate.`, null, false);
                 
-                const unrateList: Array<any> = [];
+                const unrateList = [];
     
                 //Level Unrate Check
                 for await (const element of levels) {
@@ -262,7 +261,7 @@ async function run() {
                         if (target.isDemon) continue;
                     }
                     
-                    const notifiData: UnrateNotification = new UnrateNotification(element);
+                    const notifiData = new UnrateNotification(element);
                     notifyStacks.push(notifiData);
                     await connection.query('INSERT INTO `gd_changelogs` (`level_id`, `type`, `data1`) VALUES (?, ?, ?)', [element.level_id, NotificationType.UNRATED, ""]);
                     unrateList.push(element);
@@ -287,7 +286,7 @@ async function run() {
             cachingPointercrate();
             const levels = await Notify.getPointercrateLevel(currentPCPage);
             if (levels.length) {
-                await connection.query(levels.map((dl: { level_id: any; position: any; }) => {
+                await connection.query(levels.map((dl) => {
                     return `UPDATE gd_demons SET rank_pointercrate = '${dl.position}' WHERE level_id = '${dl.level_id}'`
                 }).join("; "));
                 debug.log("Pointercrate", `A ${levels.length} levels were cached. (Page : ${currentPCPage})`, null, false);
@@ -303,7 +302,7 @@ async function run() {
 
     /*-------------------------------------*/
 
-    const wait = async (ms: number) => {
+    const wait = async (ms) => {
         return new Promise(
             resolve => setTimeout(resolve, ms)
         );
@@ -317,13 +316,13 @@ async function run() {
             let serverCount = 0;
             const notificationType = notification.getType() == NotificationType.RERATED ? notification.demon.getDifficultyText() : notification.getType();
 
-            const [channels] = <RowDataPacket[][]> await connection.query(`SELECT channel_${notificationType} as 'target', mention_role FROM guild_settings WHERE channel_${notificationType} != 0 AND enable_${notificationType} != 0`);
+            const [channels] = await connection.query(`SELECT channel_${notificationType} as 'target', mention_role FROM guild_settings WHERE channel_${notificationType} != 0 AND enable_${notificationType} != 0`);
 
             for await (const element of channels) {
                 try {
                     const channel = client.channels.cache.get(element.target);
-                    if (channel?.isText() && Utils.isCanSend(client, channel as TextChannel | undefined)) {
-                        const embed = notification.convertEmbed(connection, (channel as TextChannel | undefined)?.guildId ?? "");
+                    if (channel?.isText() && Utils.isCanSend(client, channel)) {
+                        const embed = notification.convertEmbed(connection, channel?.guildId ?? "");
                         channel?.send({ content: element.mention_role != 0 ? `<@&${element.mention_role}>`: undefined, embeds: [await embed] });
                         serverCount++;
                     }

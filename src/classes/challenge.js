@@ -1,22 +1,28 @@
-import { Snowflake } from "discord.js";
-import { Pool, FieldPacket, ResultSetHeader, RowDataPacket } from "mysql2/promise";
-import Demon from "./demon";
+import Demon from "./demon.js";
 
 
 export default class Challenge {
-    levels: string[];
-    constructor(public connection: Pool, public id: number, public owner: Snowflake, public status: ChallengeStatus, levels: string, public filter: ChallengeFilter, public currSkips: number, public maxSkips: number, public createDate: Date, public score: number) {
+    constructor(connection, id, owner, status, levels, filter, currSkips, maxSkips, createDate, score) {
+        this.connection = connection;
+        this.id = id;
+        this.owner = owner;
+        this.status = status
         this.levels = levels ? levels.split(",") : [];
+        this.filter = filter;
+        this.currSkips = currSkips;
+        this.maxSkips = maxSkips;
+        this.createDate = createDate;
+        this.score = score;
     }
 
-    static async create(connection: Pool, user: Snowflake, filter: ChallengeFilter, skips: number = 0) {
-        const [result] = <[ResultSetHeader, FieldPacket[]]> await connection.query(
+    static async create(connection, user, filter, skips = 0) {
+        const [result] = await connection.query(
             `INSERT INTO challenges (demon_filter, user, max_skips) VALUES ('${filter}', '${user}', '${skips}')`
         );
         return new Challenge(connection, +result.insertId, user, ChallengeStatus.PROCESS, "", filter, 0, skips, new Date(), 0);
     }
-    static async findById(connection: Pool, id: number) {
-        const [result] = <RowDataPacket[][]> await connection.query(
+    static async findById(connection, id) {
+        const [result] = await connection.query(
             `SELECT * FROM challenges WHERE challenge_id = '${id}'`
         );
         if (result.length) {
@@ -25,8 +31,8 @@ export default class Challenge {
             return undefined;
         }
     }
-    static async findCurrentByUser(connection: Pool, user: Snowflake) {
-        const [result] = <RowDataPacket[][]> await connection.query(
+    static async findCurrentByUser(connection, user) {
+        const [result] = await connection.query(
             `SELECT * FROM challenges WHERE user = '${user}' AND status = '${ChallengeStatus.PROCESS}'`
         );
         if (result.length) {
@@ -35,13 +41,13 @@ export default class Challenge {
             return undefined;
         }
     }
-    static filterToString(type: ChallengeFilter) {
+    static filterToString(type) {
         if (type == ChallengeFilter.ALL) return "All";
         if (type == ChallengeFilter.POINTERCRATE) return "Pointercrate List";
         else return Demon.getDifficultyFullText(type);
     }
 
-    private getFilterString() {
+    getFilterString() {
         if (this.filter == ChallengeFilter.ALL) {
             return '1';
         } else if (this.filter == ChallengeFilter.POINTERCRATE) {
@@ -51,8 +57,8 @@ export default class Challenge {
         }
     }
 
-    private async getNewLevel(isSkip: boolean) {
-        const [[resultDemons]] = <RowDataPacket[][]> await this.connection.query(
+    async getNewLevel(isSkip) {
+        const [[resultDemons]] = await this.connection.query(
             `SELECT level_id FROM gd_demons 
              WHERE level_id NOT IN (${this.levels.join(",") || "0"}) AND ${this.getFilterString()} ORDER BY RAND() LIMIT 1`
             );
@@ -64,7 +70,7 @@ export default class Challenge {
             );
     }
 
-    async rerollLevel(count: boolean = true) {
+    async rerollLevel(count = true) {
         if (count && this.currSkips == this.maxSkips) return;
         if (this.levels.length) {
             this.levels.pop();
@@ -95,9 +101,9 @@ export default class Challenge {
         return this.maxSkips - this.currSkips;
     }
 
-    private async updateScore() {
+    async updateScore() {
         if (this.levels.length) {
-            const [[resultDemons]] = <RowDataPacket[][]> await this.connection.query(
+            const [[resultDemons]] = await this.connection.query(
                 `SELECT difficulty, rank_pointercrate FROM gd_demons 
                  WHERE level_id = '${[...this.levels].reverse()[0]}'`
                 );
@@ -111,9 +117,9 @@ export default class Challenge {
     }
 }
 
-export enum ChallengeStatus {
-    PROCESS = 0, STOP = 1, COMPLETE = 2
+export const ChallengeStatus = {
+    PROCESS: 0, STOP: 1, COMPLETE: 2
 }
-export enum ChallengeFilter {
-    HARD = 0, ALL = 1, POINTERCRATE = 2, EASY = 3, MEDIUM = 4, INSANE = 5, EXTREME = 6 
+export const ChallengeFilter = {
+    HARD: 0, ALL: 1, POINTERCRATE: 2, EASY: 3, MEDIUM: 4, INSANE: 5, EXTREME: 6 
 }

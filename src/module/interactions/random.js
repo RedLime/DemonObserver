@@ -1,11 +1,10 @@
 import { MessageEmbed, MessagePayload } from "discord.js";
-import { RowDataPacket } from "mysql2/promise";
-import Demon from "../../classes/demon";
-import { CommandUserInteraction } from "../../classes/interaction";
+import Demon from "../../classes/demon.js";
+import { CommandUserInteraction } from "../../classes/interaction.js";
 
 export default class RandomCommand extends CommandUserInteraction {
 
-    async execute(): Promise<void> {
+    async execute() {
 
         const option = this.interaction.options.getString("filter");
         let drawOption = this.interaction.options.getInteger("draw") ?? 1;
@@ -25,7 +24,7 @@ export default class RandomCommand extends CommandUserInteraction {
             }
         }
         
-        const [resultDemons] = <RowDataPacket[][]> await this.connection.query(
+        const [resultDemons] = await this.connection.query(
             `SELECT level_id, level_name, difficulty, creator_points, author_name, rank_pointercrate FROM gd_demons 
              WHERE ${option ? 'difficulty='+Demon.getDifficultyNumber(option) : 1} ${demonListRange ? 'AND '+demonListRange() : ''} ORDER BY RAND() LIMIT ${drawOption}`
             );
@@ -48,24 +47,42 @@ export default class RandomCommand extends CommandUserInteraction {
 
             const embed = new MessageEmbed()
                 .setTitle(await this.localeMessage("MESSAGE_RANDOM_DEMON"))
-                .addField(await this.localeMessage("LIST"), resultContent);
+                .addFields(
+                    {
+                        name: await this.localeMessage("LIST"), 
+                        value: resultContent
+                    }
+                );
             this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [embed]}));
         } else {
             const [resultDemon] = resultDemons;
             const embed = new MessageEmbed()
                 .setTitle(await this.localeMessage("MESSAGE_RANDOM_DEMON"))
                 .setThumbnail(`https://gdbrowser.com/assets/difficulties/${Demon.getRateBrowserText(resultDemon.difficulty, resultDemon.creator_points)}.png`)
-                .addField(await this.localeMessage("LEVEL_INFO"), `ID : __${resultDemon.level_id}__ (**${resultDemon.level_name}** by ${resultDemon.author_name})`)
-                .addField(await this.localeMessage("DIFFICULTY"), Demon.getDifficultyFullText(resultDemon.difficulty));
+                .addFields(
+                    {
+                        name: await this.localeMessage("LEVEL_INFO"),
+                        value: `ID : __${resultDemon.level_id}__ (**${resultDemon.level_name}** by ${resultDemon.author_name})`
+                    },
+                    {
+                        name: await this.localeMessage("DIFFICULTY"), 
+                        value: Demon.getDifficultyFullText(resultDemon.difficulty)
+                    }
+                );
             if (dlOption) {
-                const dlData = async (demon: RowDataPacket) => {
+                const dlData = async (demon) => {
                     let raw = ``;
                     if (demon.rank_pointercrate) raw += await this.localeMessage("POINTERCRATE") + ` - ${this.emojis.GOLD_TROPY} #${demon.rank_pointercrate}\n`
                     //if (demon.rank_another_list) raw += await this.localeMessage("ANOTHER_LIST") + ` - ${this.emojis.GOLD_TROPY} #${demon.rank_another_list}\n`
                     if (raw.length > 0) raw = raw.substring(0, raw.length-1);
                     return raw;
                 };
-                embed.addField(await this.localeMessage("DEMONLIST_RANK"), await dlData(resultDemon));
+                embed.addFields(
+                    {
+                        name: await this.localeMessage("DEMONLIST_RANK"), 
+                        value: await dlData(resultDemon)
+                    }
+                );
             }
             this.interaction.editReply(MessagePayload.create(this.interaction, {embeds: [embed]}));
         }

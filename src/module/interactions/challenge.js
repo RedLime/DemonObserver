@@ -1,15 +1,13 @@
-
-import { MessageActionRow, MessageButton, MessageEmbed, MessageOptions, MessageSelectOptionData, MessageSelectMenu } from "discord.js";
-import { RowDataPacket } from "mysql2/promise";
-import Challenge, { ChallengeStatus } from "../../classes/challenge";
-import Demon from "../../classes/demon";
-import { ButtonUserInteraction, CommandUserInteraction, MenuUserInteraction, UserInteraction } from "../../classes/interaction";
+import { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } from "discord.js";
+import Challenge, { ChallengeStatus } from "../../classes/challenge.js";
+import Demon from "../../classes/demon.js";
+import { ButtonUserInteraction, CommandUserInteraction, MenuUserInteraction } from "../../classes/interaction.js";
 
 
 
 export class ChallengeCommand extends CommandUserInteraction {
 
-    async execute(): Promise<void> {
+    async execute() {
         const subCommand = this.interaction.options.getSubcommand();
         if (subCommand == "create") {
             const filter = +(this.interaction.options.getString("filter") ?? "1"), skips = Math.max(Math.min(this.interaction.options.getInteger("skips") || 0, 10), 0);
@@ -64,7 +62,7 @@ export class ChallengeCommand extends CommandUserInteraction {
 
 export class ChallengeButton extends ButtonUserInteraction {
 
-    async execute(): Promise<void> {
+    async execute() {
         if (this.customData[0] == "create") {
             const lastChallenge = await Challenge.findCurrentByUser(this.connection, this.interaction.user.id);
             if (lastChallenge) lastChallenge.stopChallenge();
@@ -142,7 +140,7 @@ export class ChallengeButton extends ButtonUserInteraction {
 
 export class ChallengeMenu extends MenuUserInteraction {
 
-    async execute(): Promise<void> {
+    async execute() {
         if (this.customData[0] == "info") {
             const targetId = +this.customData[1], targetPage = +this.interaction.values[0]
             await this.interaction.deferUpdate();
@@ -153,12 +151,12 @@ export class ChallengeMenu extends MenuUserInteraction {
 }
 
 
-async function loadChallengeProcess(interaction: UserInteraction, challenge: Challenge) {
-    const [[resultDemon]] = <RowDataPacket[][]> await interaction.connection.query(
+async function loadChallengeProcess(interaction, challenge) {
+    const [[resultDemon]] = await interaction.connection.query(
         `SELECT level_id, level_name, author_name, difficulty, creator_points, rank_pointercrate FROM gd_demons WHERE level_id = '${[...challenge.levels].reverse()[0]}'`
     );
 
-    const result: MessageOptions = {};
+    const result = {};
     
     if (!resultDemon) {
         const errorEmbed = new MessageEmbed()
@@ -174,12 +172,25 @@ async function loadChallengeProcess(interaction: UserInteraction, challenge: Cha
         .setDescription(await interaction.localeMessage("MESSAGE_CHALLENGE_LEVEL_DESCRIPTION"))
         .setColor([0, 153, 255])
         .setThumbnail(`https://gdbrowser.com/assets/difficulties/${Demon.getRateBrowserText(+resultDemon.difficulty, +resultDemon.creator_points)}.png`)
-        .addField(await interaction.localeMessage("LEVEL_INFO"), `ID : __${resultDemon.level_id}__ (**${resultDemon.level_name}** by ${resultDemon.author_name})`)
-        .addField(await interaction.localeMessage("DIFFICULTY"), Demon.getDifficultyFullText(+resultDemon.difficulty))
-        .setFooter("ID : "+resultDemon.level_id);
+        .addFields(
+            {
+                name: await interaction.localeMessage("LEVEL_INFO"), 
+                value: `ID : __${resultDemon.level_id}__ (**${resultDemon.level_name}** by ${resultDemon.author_name})`
+            },
+            {
+                name: await interaction.localeMessage("DIFFICULTY"), 
+                value: Demon.getDifficultyFullText(+resultDemon.difficulty)
+            }
+        )
+        .setFooter({ text: "ID : "+resultDemon.level_id });
     
     if (resultDemon.rank_pointercrate) {
-        embed.addField(await interaction.localeMessage("DEMONLIST_RANK"), `${await interaction.localeMessage("POINTERCRATE")} - ${interaction.emojis.GOLD_TROPY} #${resultDemon.rank_pointercrate}`);
+        embed.addFields(
+            {
+                name: await interaction.localeMessage("DEMONLIST_RANK"), 
+                value: `${await interaction.localeMessage("POINTERCRATE")} - ${interaction.emojis.GOLD_TROPY} #${resultDemon.rank_pointercrate}`
+            }
+        );
     }
     
     const nextChallenge = new MessageButton()
@@ -208,11 +219,11 @@ async function loadChallengeProcess(interaction: UserInteraction, challenge: Cha
     return result;
 }
 
-async function loadChallengeInfo(interaction: UserInteraction, id: number, page: number): Promise<MessageOptions> {
+async function loadChallengeInfo(interaction, id, page) {
     
     const lastChallenge = await Challenge.findById(interaction.connection, id);
 
-    const result: MessageOptions = {};
+    const result = {};
     
     const errorEmbed = new MessageEmbed()
     .setTitle(await interaction.localeMessage("ERROR"))
@@ -226,7 +237,7 @@ async function loadChallengeInfo(interaction: UserInteraction, id: number, page:
 
     const perPage = 5;
 
-    const [resultDemons] = <RowDataPacket[][]> await interaction.connection.query(
+    const [resultDemons] = await interaction.connection.query(
         `SELECT level_id, level_name, difficulty, creator_points, rank_pointercrate FROM gd_demons WHERE level_id IN (${[...lastChallenge.levels].reverse().slice(page*perPage, (page+1)*perPage).join(",") || "0"})`
     );
 
@@ -256,7 +267,7 @@ async function loadChallengeInfo(interaction: UserInteraction, id: number, page:
 
         const pageOptions = new MessageSelectMenu().setCustomId(interaction.interaction.user.id+'||challenge:info:'+lastChallenge.id).setPlaceholder(await interaction.localeMessage("MESSAGE_SELECT_PAGE"));
                     
-        const options: MessageSelectOptionData[] = []; 
+        const options = []; 
         for (let index = 0; index < totalPage; index++) {
             options.push({ label: `Page : ${index+1}`, value: index.toString(), default: index == page})
         }
@@ -268,14 +279,42 @@ async function loadChallengeInfo(interaction: UserInteraction, id: number, page:
 
     const embed = new MessageEmbed()
         .setTitle(await interaction.localeMessage("CHALLENGE_INFO"))
-        .addField(await interaction.localeMessage("USER"), `<@${lastChallenge.owner}>`, true)
-        .addField(await interaction.localeMessage("SCORE"), ""+lastChallenge.score, true)
-        .addField(await interaction.localeMessage("STATUS"), await interaction.localeMessage(lastChallenge.status == ChallengeStatus.STOP ? "ENDED" : lastChallenge.status == ChallengeStatus.COMPLETE ? "COMPLETED" : "IN_PROGRESS"), true)
-        .addField(await interaction.localeMessage("FILTER"), Challenge.filterToString(lastChallenge.filter))
-        .addField(await interaction.localeMessage("CREATED_DATE"), await interaction.localeTime(lastChallenge.createDate), true)
-        .addField(await interaction.localeMessage("SKIPS"), ""+(lastChallenge.maxSkips - lastChallenge.currSkips), true)
-        .addField(await interaction.localeMessage("LIST"), raw || await interaction.localeMessage("NOTHING"))
-        .setFooter(`Page : ${totalPage == 0 ? "-" : `${page+1}/${totalPage}`} | ID : ${lastChallenge.id}`);
+        .addFields(
+            {
+                name: await interaction.localeMessage("USER"), 
+                value: `<@${lastChallenge.owner}>`, 
+                inline: true
+            },
+            {
+                name: await interaction.localeMessage("SCORE"), 
+                value: ""+lastChallenge.score, 
+                inline: true
+            },
+            {
+                name: await interaction.localeMessage("STATUS"), 
+                value: await interaction.localeMessage(lastChallenge.status == ChallengeStatus.STOP ? "ENDED" : lastChallenge.status == ChallengeStatus.COMPLETE ? "COMPLETED" : "IN_PROGRESS"), 
+                inline: true
+            },
+            {
+                name: await interaction.localeMessage("FILTER"),
+                value: Challenge.filterToString(lastChallenge.filter)
+            },
+            {
+                name: await interaction.localeMessage("CREATED_DATE"),
+                value: await interaction.localeTime(lastChallenge.createDate),
+                inline: true
+            },
+            {
+                name: await interaction.localeMessage("SKIPS"),
+                value: ""+(lastChallenge.maxSkips - lastChallenge.currSkips),
+                inline: true
+            }, 
+            {
+                name: await interaction.localeMessage("LIST"),
+                value: raw || await interaction.localeMessage("NOTHING")
+            }
+        )
+        .setFooter({ text: `Page : ${totalPage == 0 ? "-" : `${page+1}/${totalPage}`} | ID : ${lastChallenge.id}` });
     result.embeds = [embed];
 
     return result;

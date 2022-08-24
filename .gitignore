@@ -4,4 +4,4 @@ config/settings.json
 .eslintrc.json
 .setup
 .ready
-.package-lock.json
+package-lock.json

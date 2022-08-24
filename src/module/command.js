@@ -1,11 +1,10 @@
 import { REST } from '@discordjs/rest';
-import { Client } from 'discord.js';
-import { Routes } from "discord-api-types/v10";
-import config from '../../config/settings.json';
+import { Routes } from "discord-api-types/v9";
+import config from '../../config/settings.json' assert {type: "json"};
 import fs from 'fs';
 import path from 'path';
 
-const commands: any[] = [];
+const commands = [];
 const commandFiles = fs.readdirSync(path.resolve()+"/src/module/commands").filter(file => file.endsWith('.json'));
 for (const file of commandFiles) {
     const json = fs.readFileSync(path.join(path.resolve()+"/src/module/commands", "/"+file), 'utf-8');
@@ -13,8 +12,8 @@ for (const file of commandFiles) {
 }
 
 export default class RegisterCommand {
-    static async registerCommands(client: Client) {
-        const rest = new REST({ version: '10' }).setToken(config.bot_token);
+    static async registerCommands(client) {
+        const rest = new REST({ version: '9' }).setToken(config.bot_token);
 
         if (config.debug) {
             await rest.put(

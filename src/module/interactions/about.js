@@ -1,16 +1,28 @@
 import { MessageActionRow, MessageButton, MessageEmbed, MessagePayload } from "discord.js";
-import { CommandUserInteraction } from "../../classes/interaction";
+import { CommandUserInteraction } from "../../classes/interaction.js";
 
 export default class AboutCommand extends CommandUserInteraction {
 
-    async execute(): Promise<void> {
+    async execute() {
         const embed = new MessageEmbed()
             .setTitle(await this.localeMessage("ABOUT_DEMON_OBSERVER"))
             .setDescription(await this.localeMessage("MESSAGE_ABOUT_DESCRIPTION"))
             .setThumbnail(this.config.icon_url)
-            .addField(await this.localeMessage("AUTHOR") + ` (${await this.localeMessage("CONTACT_AND_FEEDBACK")})`, "RedLime#0817", true)
-            .addField(await this.localeMessage("AVAILABLE_LANGUAGES"), 'Command: `/config language <?>`\nEnglish, 한국어(Korean)')
-            .addField(await this.localeMessage("COMMANDS"), await this.localeMessage("MESSAGE_COMMANDS_HELP"));
+            .addFields(
+                {
+                    name: await this.localeMessage("AUTHOR") + ` (${await this.localeMessage("CONTACT_AND_FEEDBACK")})`,
+                    value: 'RedLime#0817',
+                    inline: true
+                }, 
+                {
+                    name: await this.localeMessage("AVAILABLE_LANGUAGES"),
+                    value: 'Command: `/config language <?>`\nEnglish, 한국어(Korean)',
+                },
+                {
+                    name: await this.localeMessage("COMMANDS"),
+                    value: await this.localeMessage("MESSAGE_COMMANDS_HELP")
+                }
+            )
         const inviteButton = new MessageButton()
             .setStyle("LINK")
             .setLabel(await this.localeMessage("INVITE_BOT"))

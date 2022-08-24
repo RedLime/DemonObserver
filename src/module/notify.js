@@ -1,32 +1,32 @@
 import fetch from 'node-fetch';
-import Demon from '../classes/demon';
-import config from '../../config/settings.json';
+import Demon from '../classes/demon.js';
+import config from '../../config/settings.json' assert {type: "json"};
 
-export interface GDFilter {
-    secret?: string
-    gameVersion?: number
-    binaryVersion?: number
-    gdw?: number
-    diff?: number
-    page?: number
-    type?: number
-    str?: string
-    count?: number
-    len?: string
-    total?: number
-    uncompleted?: number
-    onlyCompleted?: number
-    featured?: number
-    original?: number
-    twoPlayer?: number
-    coins?: number
-    epic?: number
-    noStar?: number
-    completedLevels?: string
+// export interface GDFilter {
+//     secret?: string
+//     gameVersion?: number
+//     binaryVersion?: number
+//     gdw?: number
+//     diff?: number
+//     page?: number
+//     type?: number
+//     str?: string
+//     count?: number
+//     len?: string
+//     total?: number
+//     uncompleted?: number
+//     onlyCompleted?: number
+//     featured?: number
+//     original?: number
+//     twoPlayer?: number
+//     coins?: number
+//     epic?: number
+//     noStar?: number
+//     completedLevels?: string
 
-}
+// }
 
-function GDFilterToURLSearchParams(filter: GDFilter): URLSearchParams {
+function GDFilterToURLSearchParams(filter) {
 
     const result = new URLSearchParams();
     for (const [key, value] of Object.entries(filter)) {
@@ -36,24 +36,24 @@ function GDFilterToURLSearchParams(filter: GDFilter): URLSearchParams {
     return result;
 }
 
-export interface GDAuthor {
-    [details: number] : string;
-} 
+// export interface GDAuthor {
+//     [details: number] : string;
+// } 
 
-export interface GDLevelData {
-    [details: number] : any;
-} 
+// export interface GDLevelData {
+//     [details: number] : any;
+// } 
 
-interface GJLevelsResult {
-    total: number
-    offset: number
-    levels: Array<Demon>
-    result: "block" | "error" | "success"
-} 
+// interface GJLevelsResult {
+//     total: number
+//     offset: number
+//     levels: Array<Demon>
+//     result: "block" | "error" | "success"
+// } 
 
 export default class Notify {
 
-    static async getGJLevels(filter: GDFilter): Promise<GJLevelsResult> {
+    static async getGJLevels(filter) {
         filter.secret = 'Wmfd2893gb7';
         filter.gameVersion ||= 21;
         filter.binaryVersion ||= 35;
@@ -81,24 +81,24 @@ export default class Notify {
             const gjData = rawData.split("#");
             const pageInfo = gjData[3].split(":");
     
-            const result: GJLevelsResult = { total: +pageInfo[0], offset: +pageInfo[1], result: "success", levels: [] };
+            const result = { total: +pageInfo[0], offset: +pageInfo[1], result: "success", levels: [] };
             if (!gjData[0]) return result;
     
-            const authors = gjData[1].split("|"), authorList: GDAuthor = {};
-            authors.forEach((x: string) => {
+            const authors = gjData[1].split("|"), authorList = {};
+            authors.forEach((x) => {
                 if (x.startsWith('~')) return;
                 let arr = x.split(':');
                 authorList[+arr[0]] = arr[1];
             });
     
-            result.levels = gjData[0].split("|").map((lvl: string) => {
+            result.levels = gjData[0].split("|").map((lvl) => {
                 const levelRaw = lvl.split(":");
-                let levelData: GDLevelData = {};
+                let levelData = {};
                 for (let i = 0; i < levelRaw.length; i += 2) {
                     levelData[+levelRaw[i]] = levelRaw[i+1];
                 }
                 return levelData;
-            }).map((lvl: GDLevelData) => new Demon(lvl, authorList[lvl[6]] ?? "-")).filter((lvl: Demon) => lvl != null);
+            }).map((lvl) => new Demon(lvl, authorList[lvl[6]] ?? "-")).filter((lvl) => lvl != null);
     
             return result;
         } catch (err) {
@@ -106,7 +106,7 @@ export default class Notify {
         }
     }
 
-    static async getPointercrateLevel(rank: number): Promise<Array<any>> {
+    static async getPointercrateLevel(rank) {
         try {
             const options = {
                 method: 'GET',

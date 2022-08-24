@@ -1,17 +1,13 @@
 
-import english from '../locale/english.json';
-import korean from '../locale/korean.json';
-import mysql, { RowDataPacket } from 'mysql2/promise'
+import english from '../locale/english.json' assert {type: "json"};
+import korean from '../locale/korean.json' assert {type: "json"};
 
-export type LocaleType = 0 | 1
-type LocaleString = {[key: string]: string}
 const locales = {
-    0: <LocaleString> english,
-    1: <LocaleString> korean
+    0: english,
+    1: korean
 };
 
-type LocaleData = {[key: string]: LocaleType}
-const localesData: LocaleData = {};
+const localesData = {};
 
 /**
  * 번역된 메세지를 반출합니다.
@@ -20,7 +16,7 @@ const localesData: LocaleData = {};
  * @param {Array} args 대체 메세지
  * @returns {string} 번역된 메세지
  */
-export function getLocaleMessage(language: LocaleType, raw: string, args: Array<any> = []): string {
+export function getLocaleMessage(language, raw, args = []) {
     var text = (locales[language][raw] ?? raw).toString();
     args.forEach((arg, index) => {
         text = text.split(`{${index}}`).join(arg);
@@ -29,17 +25,17 @@ export function getLocaleMessage(language: LocaleType, raw: string, args: Array<
 }
 
 
-export async function getLocaleMessageGuild(connection: mysql.Pool, guild_id: string | number, raw: string, args: Array<any> = []): Promise<string> {
+export async function getLocaleMessageGuild(connection, guild_id, raw, args = []) {
     const language = await getLocale(connection, guild_id);
     return getLocaleMessage(language, raw, args);
 }
 
 
-export async function getLocale(connection: mysql.Pool, guild_id: string | number): Promise<LocaleType> {
+export async function getLocale(connection, guild_id) {
     if (localesData[guild_id] != null) {
         return localesData[guild_id];
     } else {
-        const [[result]] = <RowDataPacket[][]> await connection.query('SELECT language FROM guild_settings WHERE guild_id = ?', [guild_id]);
+        const [[result]] = await connection.query('SELECT language FROM guild_settings WHERE guild_id = ?', [guild_id]);
         if (result) {
             localesData[guild_id] = result.language ?? 0;
             return localesData[guild_id];
@@ -50,13 +46,13 @@ export async function getLocale(connection: mysql.Pool, guild_id: string | numbe
 }
 
 
-export async function updateLocale(connection: mysql.Pool, guild_id: string | number, language: LocaleType) {
+export async function updateLocale(connection, guild_id, language) {
     await connection.query(`UPDATE guild_settings SET language = ${language} WHERE guild_id = '${guild_id}'`);
     localesData[guild_id] = language;
 }
 
 
-export async function getTimeAgoLocaleGuild(connection: mysql.Pool, guild_id: string | number, date: number): Promise<string> {
+export async function getTimeAgoLocaleGuild(connection, guild_id, date) {
     const language = await getLocale(connection, guild_id);
     return getTimeAgoLocale(language, date);
 }
@@ -66,7 +62,7 @@ export async function getTimeAgoLocaleGuild(connection: mysql.Pool, guild_id: st
  * @param {number} language 언어
  * @param {number} date 날짜
  */
-export function getTimeAgoLocale(language: LocaleType, date: number): string {
+export function getTimeAgoLocale(language, date) {
     const malDate = Date.now() - date;
 
     if (malDate < 1000) {

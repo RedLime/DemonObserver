@@ -1,15 +1,13 @@
-import { ButtonInteraction, Client, CommandInteraction, SelectMenuInteraction, TextChannel } from 'discord.js'
-import { Pool } from 'mysql2/promise'
-import AboutCommand from './interactions/about'
-import config from '../../config/settings.json';
-import sampleEmojis from '../../config/emojis.json';
-import DemonsCommand from './interactions/demons';
-import Utils from './utils';
-import RandomCommand from './interactions/random';
-import { RecentButton, RecentCommand, RecentMenu } from './interactions/recent';
-import { LevelButton, LevelCommand, LevelMenu } from './interactions/level';
-import { ChallengeButton, ChallengeCommand, ChallengeMenu } from './interactions/challenge';
-import { ConfigButton, ConfigCommand, ConfigMenu } from './interactions/config';
+import AboutCommand from './interactions/about.js'
+import config from '../../config/settings.json' assert {type: "json"};
+import sampleEmojis from '../../config/emojis.json' assert {type: "json"};
+import DemonsCommand from './interactions/demons.js';
+import Utils from './utils.js';
+import RandomCommand from './interactions/random.js';
+import { RecentButton, RecentCommand, RecentMenu } from './interactions/recent.js';
+import { LevelButton, LevelCommand, LevelMenu } from './interactions/level.js';
+import { ChallengeButton, ChallengeCommand, ChallengeMenu } from './interactions/challenge.js';
+import { ConfigButton, ConfigCommand, ConfigMenu } from './interactions/config.js';
 
 var lastLogMessage = ``;
 
@@ -43,7 +41,7 @@ const emojis = {
         NEXT_PAGE: config.emoji_next_page,
         PREVIOUS_PAGE: config.emoji_prev_page
     },
-    convertToID: (emoji: string) => {
+    convertToID: (emoji) => {
         return emoji.replace('>','').split(":")[2];
     }
 }
@@ -51,12 +49,15 @@ const emojis = {
 
 export default class InteractionManager {
 
-    constructor(private client: Client, private connection: Pool) {}
+    constructor(client, connection) {
+        this.client = client;
+        this.connection = connection;
+    }
 
-    async onCommand(interaction: CommandInteraction) {
+    async onCommand(interaction) {
         // Command log
         const logMessage = this.client.guilds.cache.get(interaction.guildId ?? "")?.name + '`('+interaction.guildId  +')`' + " perform command `/"+interaction.commandName+"`";
-        const logChannel = this.client.channels.cache.get(config.command_log_channel) as TextChannel | undefined
+        const logChannel = this.client.channels.cache.get(config.command_log_channel)
         if (logChannel && Utils.isCanSend(this.client, logChannel) && lastLogMessage != logMessage) {
             logChannel.send(logMessage);
             lastLogMessage = logMessage;
@@ -100,7 +101,7 @@ export default class InteractionManager {
         }
     }
 
-    async onClickedButton(interaction: ButtonInteraction) {
+    async onClickedButton(interaction) {
         if (interaction.user.id != interaction.customId.split("||")[0]) {
             interaction.deleteReply();
             return;
@@ -123,7 +124,7 @@ export default class InteractionManager {
         }
     }
 
-    async onClickedMenu(interaction: SelectMenuInteraction) {
+    async onClickedMenu(interaction) {
         if (interaction.user.id != interaction.customId.split("||")[0]) {
             interaction.deleteReply();
             return;

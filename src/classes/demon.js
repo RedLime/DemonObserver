@@ -1,26 +1,6 @@
-import { GDLevelData } from "../module/notify";
-
-
-type DifficultyText = 'hard' | 'easy' | 'medium' | 'insane' | 'extreme';
-
 export default class Demon {
-    id: number;
-    name: String;
-    description: String;
-    version: number;
-    author: String;
-    playerID: number;
-    downloads: number;
-    likes: number;
-    length: number;
-    gameVersion: number;
-    coins: number;
-    verifiedCoins: boolean;
-    difficulty: number;
-    cp: number;
-    isDemon: boolean;
     
-    constructor(lvl: GDLevelData, authorName: String) {
+    constructor(lvl, authorName) {
         const creatorPoint = (+lvl[18] > 0 ? 1 : 0) + (+lvl[19] > 0 ? 1 : 0) + (+lvl[42] > 0 ? 1 : 0);
         this.id = +lvl[1];
         this.name = lvl[2];
@@ -40,7 +20,7 @@ export default class Demon {
     }
 
     
-    static getIngameVersion(version: number) {
+    static getIngameVersion(version) {
         if (version > 17) return (version / 10).toFixed(1);
         else if (version == 11) return "1.8";
         else if (version == 10) return "1.7";
@@ -51,7 +31,7 @@ export default class Demon {
         return Demon.getIngameVersion(this.version);
     }
 
-    static getDifficultyText(difficulty: number): DifficultyText {
+    static getDifficultyText(difficulty) {
         switch (difficulty) {
             case 3: return 'easy';
             case 4: return 'medium';
@@ -61,12 +41,12 @@ export default class Demon {
         }
     }
 
-    static getRateEmojiText(difficulty: number, cp: number): string {
+    static getRateEmojiText(difficulty, cp) {
         return (Demon.getDifficultyText(difficulty) + "_DEMON" + (cp < 2 ? "" : "_"+Demon.getRateText(cp))).toUpperCase();
     }
 
 
-    static getDifficultyNumber(string: string): 0 | 3 | 4 | 5 | 6 {
+    static getDifficultyNumber(string) {
         switch (string) {
             case 'easy': return 3;
             case 'medium': return 4;
@@ -80,7 +60,7 @@ export default class Demon {
         return Demon.getDifficultyText(this.difficulty);
     }
 
-    static getDifficultyFullText(difficulty: number): string {
+    static getDifficultyFullText(difficulty) {
         const diff = Demon.getDifficultyText(difficulty);
         return diff.substring(0, 1).toUpperCase() + diff.substring(1, diff.length) + " Demon";
     }
@@ -89,7 +69,7 @@ export default class Demon {
         return Demon.getDifficultyFullText(this.difficulty);
     }
 
-    static getLengthText(length: number): string {
+    static getLengthText(length) {
         return ['Tiny', 'Short', 'Medium', 'Long', 'XL'][length];
     }
 
@@ -97,7 +77,7 @@ export default class Demon {
         return Demon.getLengthText(this.length);
     }
 
-    static getRateText(cp: number): string {
+    static getRateText(cp) {
         return ['', '', 'Featured', 'Epic'][cp];
     }
 
@@ -105,7 +85,7 @@ export default class Demon {
         return Demon.getRateText(this.cp);
     }
 
-    static getRateBrowserText(difficulty: number, cp: number) {
+    static getRateBrowserText(difficulty, cp) {
         return "demon-"+Demon.getDifficultyText(difficulty)+(cp > 1 ? "-"+Demon.getRateText(cp).toLowerCase() : "");
     }
 

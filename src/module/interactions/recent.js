@@ -1,16 +1,15 @@
 
-import { MessageActionRow, MessageButton, MessageEmbed, MessageOptions, MessageSelectOptionData, MessageSelectMenu } from "discord.js";
-import { RowDataPacket } from "mysql2/promise";
-import Demon from "../../classes/demon";
-import { ButtonUserInteraction, CommandUserInteraction, MenuUserInteraction, UserInteraction } from "../../classes/interaction";
-import { NotificationTypeKey, NotificationType } from "../../classes/notification";
+import { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu } from "discord.js";
+import Demon from "../../classes/demon.js";
+import { ButtonUserInteraction, CommandUserInteraction, MenuUserInteraction } from "../../classes/interaction.js";
+import { NotificationType } from "../../classes/notification.js";
 
 
 
 export class RecentCommand extends CommandUserInteraction {
 
-    async execute(): Promise<void> {
-        const filter = <NotificationTypeKey | "all" | null> this.interaction.options.getString("filter");
+    async execute() {
+        const filter = this.interaction.options.getString("filter");
         this.interaction.editReply(await loadRecentArchives(this, filter || "all", 0));
     }
     
@@ -18,8 +17,8 @@ export class RecentCommand extends CommandUserInteraction {
 
 export class RecentButton extends ButtonUserInteraction {
 
-    async execute(): Promise<void> {
-        const filter = <NotificationTypeKey | "all" | null> this.customData[1], page = +this.customData[0];
+    async execute() {
+        const filter = this.customData[1], page = +this.customData[0];
         await this.interaction.deferUpdate();
         this.interaction.editReply(await loadRecentArchives(this, filter || "all", page));
     }
@@ -28,8 +27,8 @@ export class RecentButton extends ButtonUserInteraction {
 
 export class RecentMenu extends MenuUserInteraction {
 
-    async execute(): Promise<void> {
-        const filter = <NotificationTypeKey | "all" | null> this.customData[0];
+    async execute() {
+        const filter = this.customData[0];
         await this.interaction.deferUpdate();
         this.interaction.editReply(await loadRecentArchives(this, filter || "all", +this.interaction.values[0]));
     }
@@ -37,21 +36,21 @@ export class RecentMenu extends MenuUserInteraction {
 }
 
 
-async function loadRecentArchives(interaction: UserInteraction, filter: NotificationTypeKey | "all", page: number) {
+async function loadRecentArchives(interaction, filter, page) {
     const perPage = 6;
     
-    const [resultLogs] = <RowDataPacket[][]> await interaction.connection.query(
+    const [resultLogs] = await interaction.connection.query(
         `SELECT gd_demons.level_name, gd_changelogs.type, gd_changelogs.log_timestamp, gd_changelogs.data1, gd_changelogs.data2
         FROM gd_changelogs LEFT JOIN gd_demons ON gd_changelogs.level_id = gd_demons.level_id
         ${(filter && filter != "all") ? `WHERE gd_changelogs.type = '${filter.toLowerCase()}'` : ''}
         ORDER BY gd_changelogs.log_timestamp DESC LIMIT ${page*perPage}, ${perPage}`
     );
     
-    const [[logCount]] = <RowDataPacket[][]> await interaction.connection.query(
+    const [[logCount]] = await interaction.connection.query(
         `SELECT COUNT(*) as total FROM gd_changelogs ${(filter && filter != "all") ? `WHERE gd_changelogs.type = '${filter.toLowerCase()}'` : ''}`
     );
         
-    const archiveToString = async (archive: RowDataPacket) => {
+    const archiveToString = async (archive) => {
         let raw = `[${await interaction.localeTime(new Date(Date.parse(archive.log_timestamp)))}] **${await interaction.localeMessage(archive.type.toUpperCase())}**`;
         if (archive.type == NotificationType.AWARDED) {
             raw += ` - ${interaction.emojis.RATED}`;
@@ -66,7 +65,7 @@ async function loadRecentArchives(interaction: UserInteraction, filter: Notifica
         return raw;
     }
 
-    const resultLogString: string[] = [];
+    const resultLogString = [];
     for await (const log of resultLogs) {
         const result = `ㆍ${await archiveToString(log)} (__${log.level_name}__)`;
         resultLogString.push(result);
@@ -74,12 +73,17 @@ async function loadRecentArchives(interaction: UserInteraction, filter: Notifica
     const rawLogs = resultLogString.join("\n");
 
 
-    const result: MessageOptions = {};
+    const result = {};
     const totalPage = Math.min(Math.ceil((+logCount.total)/(perPage*1.0)), 25);
     const embed = new MessageEmbed()
         .setTitle(await interaction.localeMessage("MESSAGE_RECENT_DEMON_ARCHIVES"))
-        .addField(await interaction.localeMessage("FILTER") + ": " + await interaction.localeMessage(filter ? filter.toUpperCase() : "ALL"), rawLogs || await interaction.localeMessage("NOTHING"))
-        .setFooter(`Page : ${totalPage == 0 ? 0 : page+1}/${totalPage}`)
+        .addFields(
+            {
+                name: await interaction.localeMessage("FILTER") + ": " + await interaction.localeMessage(filter ? filter.toUpperCase() : "ALL"), 
+                value: rawLogs || await interaction.localeMessage("NOTHING")
+            }
+        )
+        .setFooter({ text: `Page : ${totalPage == 0 ? 0 : page+1}/${totalPage}` })
     result.embeds = [embed];
 
     if (totalPage > 1) {
@@ -100,9 +104,9 @@ async function loadRecentArchives(interaction: UserInteraction, filter: Notifica
 
         const pageOptions = new MessageSelectMenu().setCustomId(interaction.interaction.user.id+'||recent:'+filter).setPlaceholder(await interaction.localeMessage("MESSAGE_SELECT_PAGE"));
         
-        const pageOption: MessageSelectOptionData[] = [];
+        const pageOption = [];
         for (let index = 0; index < totalPage; index++) {
-            const pageMenu: MessageSelectOptionData = {label: `Page : ${index+1}`, value: index.toString()};
+            const pageMenu = {label: `Page : ${index+1}`, value: index.toString()};
             pageMenu.default = index == page
             pageOption.push(pageMenu);
         }

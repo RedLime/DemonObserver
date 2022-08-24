@@ -2,15 +2,16 @@
   "name": "demon-observer",
   "version": "1.1.0",
   "description": "Observing Geometry Dash Demons",
-  "main": "app.ts",
+  "main": "app.js",
   "scripts": {
-    "start": "node --experimental-specifier-resolution=node --loader ts-node/esm ./app.ts"
+    "start": "node app.js"
   },
   "author": "RedLime",
   "license": "MIT",
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
     "chartjs-node-canvas": "^3.2.0",
+    "discord-api-types": "*",
     "discord.js": "^13.10.3",
     "fs": "^0.0.1-security",
     "mysql2": "^2.3.0",
