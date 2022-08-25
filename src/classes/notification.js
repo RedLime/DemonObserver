@@ -19,17 +19,17 @@ export class AwardNotification {
         return NotificationType.AWARDED
     }
 
-    async convertEmbed(connection, guild_id) {
+    convertEmbed() {
         return new Discord.MessageEmbed()
         .setAuthor({ name: 'DemonObserver', iconURL: config.icon_url})
-        .setTitle(await Locale.getLocaleMessageGuild(connection, guild_id, "MESSAGE_NEW_AWARDED_DEMON", [this.count]))
+        .setTitle(Locale.getLocaleMessage(0, "MESSAGE_NEW_AWARDED_DEMON", [this.count]))
         .addFields(
             {
-                name: await Locale.getLocaleMessageGuild(connection, guild_id, "LEVEL_INFO"),
+                name: Locale.getLocaleMessage(0, "LEVEL_INFO"),
                 value: `ID : __${this.demon.id}__ (**${this.demon.name}** by ${this.demon.author})`
             },
             {
-                name: await Locale.getLocaleMessageGuild(connection, guild_id, "DIFFICULTY"),
+                name: Locale.getLocaleMessage(0, "DIFFICULTY"),
                 value: this.demon.getDifficultyFullText()
             },
         )
@@ -47,13 +47,13 @@ export class UnrateNotification {
         return NotificationType.UNRATED
     }
 
-    async convertEmbed(connection, guild_id) {
+    convertEmbed() {
         return new Discord.MessageEmbed()
         .setAuthor({ name: 'DemonObserver', iconURL: config.icon_url})
-        .setTitle(await Locale.getLocaleMessageGuild(connection, guild_id, "MESSAGE_UNRATED_DEMON"))
+        .setTitle(Locale.getLocaleMessage(0, "MESSAGE_UNRATED_DEMON"))
         .addFields(
             {
-                name: await Locale.getLocaleMessageGuild(connection, guild_id, "LEVEL_INFO"), 
+                name: Locale.getLocaleMessage(0, "LEVEL_INFO"), 
                 value: `ID : __${this.demon.level_id}__ (**${this.demon.level_name}** by ${this.demon.author_name})`
             }
         )
@@ -73,13 +73,13 @@ export class UpdateNotification {
         return NotificationType.UPDATED
     }
 
-    async convertEmbed(connection, guild_id) {
+    convertEmbed() {
         return new Discord.MessageEmbed()
         .setAuthor({ name: 'DemonObserver', iconURL: config.icon_url})
-        .setTitle(await Locale.getLocaleMessageGuild(connection, guild_id, "MESSAGE_UPDATED_DEMON"))
+        .setTitle(Locale.getLocaleMessage(0, "MESSAGE_UPDATED_DEMON"))
         .addFields(
             {
-                name: await Locale.getLocaleMessageGuild(connection, guild_id, "LEVEL_INFO"), 
+                name: Locale.getLocaleMessage(0, "LEVEL_INFO"), 
                 value: `ID : __${this.demon.id}__ (**${this.demon.name}** by ${this.demon.author})`
             }
         )
@@ -99,17 +99,17 @@ export class RerateNotification {
         return NotificationType.RERATED
     }
 
-    async convertEmbed(connection, guild_id) {
+    convertEmbed() {
         return new Discord.MessageEmbed()
         .setAuthor({ name: 'DemonObserver', iconURL: config.icon_url})
-        .setTitle(await Locale.getLocaleMessageGuild(connection, guild_id, "MESSAGE_CHANGE_DIFFICULTY_RATE_DEMON"))
+        .setTitle(Locale.getLocaleMessage(0, "MESSAGE_CHANGE_DIFFICULTY_RATE_DEMON"))
         .addFields(
             {
-                name: await Locale.getLocaleMessageGuild(connection, guild_id, "LEVEL_INFO"), 
+                name: Locale.getLocaleMessage(0, "LEVEL_INFO"), 
                 value: `ID : __${this.demon.id}__ (**${this.demon.name}** by ${this.demon.author})`
             },
             {
-                name: await Locale.getLocaleMessageGuild(connection, guild_id, "DIFFICULTY"),
+                name: Locale.getLocaleMessage(0, "DIFFICULTY"),
                 value: `~~${Demon.getDifficultyFullText(this.prevDifficulty)}~~ <:pointer:861423467119247372> ${Demon.getDifficultyFullText(this.currDifficulty)}`
             }
         )

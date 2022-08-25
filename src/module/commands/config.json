@@ -16,36 +16,6 @@
             "options": []
         },
         {
-            "name": "mention",
-            "description": "Set the role to be mention when the Demon notification is updated.",
-            "type": 2,
-            "options": [
-                {
-                    "name": "status",
-                    "description": "Check current notification mention role",
-                    "type": 1
-                },
-                {
-                    "name": "enable",
-                    "description": "Enable mentions",
-                    "type": 1,
-                    "options": [
-                        {
-                            "name": "role",
-                            "description": "Role to be mention",
-                            "required": true,
-                            "type": 8
-                        }
-                    ]
-                },
-                {
-                    "name": "disable",
-                    "description": "Disable mentions",
-                    "type": 1
-                }
-            ]
-        },
-        {
             "name": "language",
             "description": "Change Language Settings",
             "type": 1,

@@ -38,8 +38,8 @@ const emojis = {
     EDIT: sampleEmojis.EDIT,
     CP: sampleEmojis.CP,
     id: {
-        NEXT_PAGE: config.emoji_next_page,
-        PREVIOUS_PAGE: config.emoji_prev_page
+        NEXT_PAGE: sampleEmojis.NEXT_PAGE,
+        PREVIOUS_PAGE: sampleEmojis.PREVIOUS_PAGE
     },
     convertToID: (emoji) => {
         return emoji.replace('>','').split(":")[2];
@@ -107,7 +107,7 @@ export default class InteractionManager {
             return;
         } 
 
-        await interaction.deferReply();
+        await interaction.deferUpdate();
         
         const interactionData = interaction.customId.split("||")[1].split(":");
         if (interactionData[0] == "recent") {
@@ -130,7 +130,7 @@ export default class InteractionManager {
             return;
         } 
         
-        await interaction.deferReply();
+        await interaction.deferUpdate();
         
         const interactionData = interaction.customId.split("||")[1].split(":");
         if (interactionData[0] == "recent") {

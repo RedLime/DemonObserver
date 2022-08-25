@@ -19,7 +19,6 @@ export class RecentButton extends ButtonUserInteraction {
 
     async execute() {
         const filter = this.customData[1], page = +this.customData[0];
-        await this.interaction.deferUpdate();
         this.interaction.editReply(await loadRecentArchives(this, filter || "all", page));
     }
     
@@ -29,7 +28,6 @@ export class RecentMenu extends MenuUserInteraction {
 
     async execute() {
         const filter = this.customData[0];
-        await this.interaction.deferUpdate();
         this.interaction.editReply(await loadRecentArchives(this, filter || "all", +this.interaction.values[0]));
     }
     

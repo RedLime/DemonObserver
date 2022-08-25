@@ -11,8 +11,6 @@
     "icon_url": "https://i.imgur.com/VUDP3fT.png",
     "server_url": "https://discord.gg/3BgJEjkRPS",
     "invite_url": "https://discord.com/api/oauth2/authorize?client_id=860749953697710080&permissions=2147904512&scope=bot%20applications.commands",
-    "emoji_next_page": "861423467256479754",
-    "emoji_prev_page": "861423467362385940",
     "bot_log_channel": "0",
     "command_log_channel": "0",
     "debug": false,

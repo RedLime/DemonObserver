@@ -28,10 +28,6 @@
     //For Bot URL in /about or /help
     "invite_url": "https://discord.com/api/oauth2/authorize?client_id=860749953697710080&permissions=2147904512&scope=bot%20applications.commands",
 
-    //For Button Emoji, Insert here emoji's id
-    "emoji_next_page": "861423467256479754",
-    "emoji_prev_page": "861423467362385940",
-
     //Bot Log Channel ID
     "bot_log_channel": "0",
     //Commands Log Channel ID

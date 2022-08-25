@@ -49,24 +49,7 @@ CREATE TABLE `gd_demons` (
 CREATE TABLE `guild_settings` (
   `guild_id` varchar(20) NOT NULL COMMENT 'Guild''s ID',
   `language` tinyint(3) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Guild useing language',
-  `admin_role` varchar(20) NOT NULL DEFAULT '0' COMMENT 'Configurable Admin Role ID',
-  `mention_role` varchar(20) NOT NULL DEFAULT '0' COMMENT 'Notification mention role ID',
-  `channel_awarded` varchar(20) NOT NULL DEFAULT '0',
-  `channel_unrated` varchar(20) NOT NULL DEFAULT '0',
-  `channel_updated` varchar(20) NOT NULL DEFAULT '0',
-  `channel_easy` varchar(20) NOT NULL DEFAULT '0',
-  `channel_medium` varchar(20) NOT NULL DEFAULT '0',
-  `channel_hard` varchar(20) NOT NULL DEFAULT '0',
-  `channel_insane` varchar(20) NOT NULL DEFAULT '0',
-  `channel_extreme` varchar(20) NOT NULL DEFAULT '0',
-  `enable_awarded` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_unrated` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_updated` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_easy` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_medium` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_hard` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_insane` tinyint(1) NOT NULL DEFAULT 0,
-  `enable_extreme` tinyint(1) NOT NULL DEFAULT 0
+  `admin_role` varchar(20) NOT NULL DEFAULT '0' COMMENT 'Configurable Admin Role ID'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 

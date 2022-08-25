@@ -69,12 +69,10 @@ export class ChallengeButton extends ButtonUserInteraction {
 
             const challenge = await Challenge.create(this.connection, this.interaction.user.id, +this.customData[1], +this.customData[2]);
             await challenge.nextLevel();
-            await this.interaction.deferUpdate();
             this.interaction.editReply(await loadChallengeProcess(this, challenge));
         }
         if (this.customData[0] == "last") {
             const lastChallenge = await Challenge.findCurrentByUser(this.connection, this.interaction.user.id);
-            await this.interaction.deferUpdate();
             if (lastChallenge) {
                 this.interaction.editReply(await loadChallengeProcess(this, lastChallenge));
             }
@@ -83,7 +81,6 @@ export class ChallengeButton extends ButtonUserInteraction {
             const lastChallenge = await Challenge.findCurrentByUser(this.connection, this.interaction.user.id);
             if (lastChallenge) {
                 await lastChallenge.nextLevel();
-                await this.interaction.deferUpdate();
                 if (lastChallenge.status == ChallengeStatus.COMPLETE) {
                     const embed = new MessageEmbed()
                         .setTitle(await this.localeMessage("MESSAGE_COMPLETED_CHALLENGE", [lastChallenge.score, lastChallenge.id]))
@@ -98,13 +95,10 @@ export class ChallengeButton extends ButtonUserInteraction {
                 } else {
                     this.interaction.editReply(await loadChallengeProcess(this, lastChallenge));
                 }
-            } else {
-                this.interaction.deferUpdate();
             }
         }
         if (this.customData[0] == "skip") {
             const lastChallenge = await Challenge.findCurrentByUser(this.connection, this.interaction.user.id);
-            await this.interaction.deferUpdate();
             if (lastChallenge) {
                 await lastChallenge.rerollLevel();
                 this.interaction.editReply(await loadChallengeProcess(this, lastChallenge));
@@ -114,7 +108,6 @@ export class ChallengeButton extends ButtonUserInteraction {
             const lastChallenge = await Challenge.findCurrentByUser(this.connection, this.interaction.user.id);
             if (lastChallenge) {
                 await lastChallenge.stopChallenge();
-                await this.interaction.deferUpdate();
                 const embed = new MessageEmbed()
                     .setTitle(await this.localeMessage("MESSAGE_ENDED_CHALLENGE", [lastChallenge.score, lastChallenge.id]))
                     .setColor([255, 0, 0])
@@ -125,13 +118,10 @@ export class ChallengeButton extends ButtonUserInteraction {
                 const actionRow = new MessageActionRow()
                     .addComponents([infoChallenge]);
                 this.interaction.editReply({ embeds: [embed], components: [actionRow] });
-            } else {
-                this.interaction.deferUpdate();
             }
         }
         if (this.customData[0] == "info") {
             const targetId = +this.customData[1], targetPage = (this.customData.length > 2 ? +this.customData[2] : 0) ?? 0;
-            await this.interaction.deferUpdate();
             this.interaction.editReply(await loadChallengeInfo(this, targetId, targetPage));
         }
     }
@@ -143,7 +133,6 @@ export class ChallengeMenu extends MenuUserInteraction {
     async execute() {
         if (this.customData[0] == "info") {
             const targetId = +this.customData[1], targetPage = +this.interaction.values[0]
-            await this.interaction.deferUpdate();
             this.interaction.editReply(await loadChallengeInfo(this, targetId, targetPage));
         }
     }
@@ -182,7 +171,7 @@ async function loadChallengeProcess(interaction, challenge) {
                 value: Demon.getDifficultyFullText(+resultDemon.difficulty)
             }
         )
-        .setFooter({ text: "ID : "+resultDemon.level_id });
+        .setFooter({ text: "ID : "+challenge.id });
     
     if (resultDemon.rank_pointercrate) {
         embed.addFields(

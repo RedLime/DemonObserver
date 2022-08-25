@@ -11,15 +11,16 @@ import * as path from 'path';
 //Addons
 import Debug from './src/module/debug.js';
 import Notify from './src/module/notify.js';
-import Utils from './src/module/utils.js';
 import Commands from './src/module/command.js';
 
 //Config
 import config from './config/settings.json' assert {type: "json"};
+import notifyChannels from './config/channels.json' assert {type: "json"};
 
 //Class
 import { NotificationType, RerateNotification, UpdateNotification, AwardNotification, UnrateNotification } from './src/classes/notification.js';
 import InteractionManager from './src/module/interaction.js';
+import Utils from './src/module/utils.js';
 
 
 //setup variable
@@ -28,6 +29,7 @@ const notifyStacks = [];
 var demonCount = 0, currentGDPage = 0, currentPCPage = 0, awardedPage = false;
 var isSetup = fs.existsSync(path.join(path.resolve(), `/.setup`));
 var isReady = fs.existsSync(path.join(path.resolve(), `/.ready`));
+var isMigratedV1 = fs.existsSync(path.join(path.resolve(), `/.migrate_v1`));
 
 
 //For Start
@@ -50,6 +52,7 @@ async function run() {
     if (!isSetup) {
         const query = fs.readFileSync(path.join(path.resolve()+"/config", `/db.sql`), 'utf8');
         const setupDB = await connection.query(query).catch(reason => {
+            console.error(reason);
             return;
         });
         if (!setupDB || !setupDB[0]) {
@@ -78,6 +81,8 @@ async function run() {
                 return;
             }
             fs.writeFileSync(path.join(path.resolve(), `/.setup`), ".");
+            fs.writeFileSync(path.join(path.resolve(), `/.migrate_v1`), ".");
+            isMigratedV1 = true;
         }
 
         
@@ -117,6 +122,7 @@ async function run() {
     client.on("interactionCreate", async interaction => {
         if (interaction.isCommand()) {
             interactionManager.onCommand(interaction)
+            interaction.guild.me.permissions.has("MANAGE_WEBHOOKS")
         }
         if (interaction.isButton()) {
             interactionManager.onClickedButton(interaction);
@@ -302,39 +308,36 @@ async function run() {
 
     /*-------------------------------------*/
 
-    const wait = async (ms) => {
-        return new Promise(
-            resolve => setTimeout(resolve, ms)
-        );
-    }
+    const channelOrder = {};
 
     //Notifications stacking
     const sendNotifications = async () => {
         const notification = notifyStacks.shift();
 
         if (notification && isReady) {
-            let serverCount = 0;
-            const notificationType = notification.getType() == NotificationType.RERATED ? notification.demon.getDifficultyText() : notification.getType();
+            try {
+                const notificationType = notification.getType() == NotificationType.RERATED ? notification.demon.getDifficultyText() : notification.getType();
+    
+                if (!channelOrder[notificationType]) channelOrder[notificationType] = 0;
 
-            const [channels] = await connection.query(`SELECT channel_${notificationType} as 'target', mention_role FROM guild_settings WHERE channel_${notificationType} != 0 AND enable_${notificationType} != 0`);
-
-            for await (const element of channels) {
-                try {
-                    const channel = client.channels.cache.get(element.target);
-                    if (channel?.isText() && Utils.isCanSend(client, channel)) {
-                        const embed = notification.convertEmbed(connection, channel?.guildId ?? "");
-                        channel?.send({ content: element.mention_role != 0 ? `<@&${element.mention_role}>`: undefined, embeds: [await embed] });
-                        serverCount++;
-                    }
-                } catch (e) {
+                const channelID = notifyChannels[notificationType][channelOrder[notificationType]];
+                const notifyChannel = channelID != "0" ? await client.channels.fetch(channelID) : null;
+                if (notifyChannel?.type == "GUILD_NEWS") {
+                    const embed = notification.convertEmbed();
+                    const message = await notifyChannel.send({ embeds: [embed] });
+                    message.crosspost();
                 }
-                await wait(100);
-            }
-
-            if (notification instanceof UnrateNotification) {
-                debug.log("GDServer", `Level - ${notification.demon.level_id}(${notification.demon.level_name}) was ${notificationType}. (to ${serverCount} servers)`);
-            } else {
-                debug.log("GDServer", `Level - ${notification.demon.id}(${notification.demon.name}) was ${notificationType}. (to ${serverCount} servers)`);
+    
+                const nextCount = channelOrder[notificationType] + 1;
+                channelOrder[notificationType] = nextCount >= notifyChannels[notificationType].length ? 0 : nextCount;
+    
+                if (notification instanceof UnrateNotification) {
+                    debug.log("GDServer", `Level - ${notification.demon.level_id}(${notification.demon.level_name}) was ${notificationType}.`);
+                } else {
+                    debug.log("GDServer", `Level - ${notification.demon.id}(${notification.demon.name}) was ${notificationType}.`);
+                }
+            } catch (e) {
+                console.error(e);
             }
         } else if (notification && !isReady) {
             debug.log("GDServer", `Level - ${notification.demon.id}(${notification.demon.name}) was Added.`);

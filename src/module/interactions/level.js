@@ -90,7 +90,6 @@ export class LevelButton extends ButtonUserInteraction {
         const [[resultDemon]] = await this.connection.query(
             `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE level_id = '${level_id}'`
         );
-        await this.interaction.deferUpdate();
         this.interaction.editReply(await loadLevelInfo(this, resultDemon, page));
     }
     
@@ -104,7 +103,6 @@ export class LevelMenu extends MenuUserInteraction {
             const [[resultDemon]] = await this.connection.query(
                 `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE level_id = '${level_id}'`
             );
-            await this.interaction.deferUpdate();
             this.interaction.editReply(await loadLevelInfo(this, resultDemon, 0));
         }
         if (this.customData[0] == "page") {
@@ -112,7 +110,6 @@ export class LevelMenu extends MenuUserInteraction {
             const [[resultDemon]] = await this.connection.query(
                 `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE level_id = '${level_id}'`
             );
-            await this.interaction.deferUpdate();
             this.interaction.editReply(await loadLevelInfo(this, resultDemon, +this.interaction.values[0]));
         }
     }

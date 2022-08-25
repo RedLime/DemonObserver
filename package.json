@@ -1,6 +1,6 @@
 {
   "name": "demon-observer",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Observing Geometry Dash Demons",
   "main": "app.js",
   "scripts": {

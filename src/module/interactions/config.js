@@ -1,7 +1,10 @@
 import { MessageActionRow, MessageButton, MessageEmbed, MessageSelectMenu, Permissions } from "discord.js";
 import { ButtonUserInteraction, CommandUserInteraction, MenuUserInteraction } from "../../classes/interaction.js";
 import { updateLocale } from "../localize.js";
+import notifyChannels from '../../../config/channels.json' assert {type: "json"};
 
+
+let notificationCommandId = 0;
 
 
 export class ConfigCommand extends CommandUserInteraction {
@@ -47,35 +50,6 @@ export class ConfigCommand extends CommandUserInteraction {
             }
         }
 
-        if (this.interaction.options.getSubcommandGroup(false) == "mention") {
-            if (this.interaction.options.getSubcommand() == "status") {
-                const embed = new MessageEmbed()
-                    .setTitle(await this.localeMessage("MESSAGE_CURRENT_MENTION"))
-                    .setDescription(`** : ${serverConfig.mention_role && serverConfig.mention_role != "0" ? `<@${serverConfig.mention_role}>` : await this.localeMessage("NOTHING")}**`);
-                this.interaction.editReply({embeds: [embed]});
-            }
-            if (this.interaction.options.getSubcommand() == "enable") {
-                await this.connection.query(
-                    `UPDATE guild_settings SET mention_role = '${this.interaction.options.getRole("role", true).id}' WHERE guild_id = '${this.interaction.guildId}'`
-                );
-
-                const embed = new MessageEmbed()
-                    .setTitle(await this.localeMessage("MESSAGE_SUCCESS_ENABLE_MENTION"))
-                    .setColor([0,255,0]);
-                this.interaction.editReply({embeds: [embed]});
-            }
-            if (this.interaction.options.getSubcommand() == "disable") {
-                await this.connection.query(
-                    `UPDATE guild_settings SET mention_role = '' WHERE guild_id = '${this.interaction.guildId}'`
-                );
-
-                const embed = new MessageEmbed()
-                    .setTitle(await this.localeMessage("MESSAGE_SUCCESS_DISABLE_MENTION"))
-                    .setColor([0,255,0]);
-                this.interaction.editReply({embeds: [embed]});
-            }
-        }
-
         if (this.interaction.options.getSubcommand() == "adminrole") {
             const target = this.interaction.options.getRole("role", true);
             await this.connection.query(
@@ -89,6 +63,11 @@ export class ConfigCommand extends CommandUserInteraction {
         }
 
         if (this.interaction.options.getSubcommand() == "list") {
+            if (!notificationCommandId) {
+                const commands = await this.interaction.client.application.commands.fetch();
+                notificationCommandId = commands.find(command => command.name == 'config').id
+            }
+
             const embed = new MessageEmbed()
                 .setTitle(await this.localeMessage("MESSAGE_CURRENT_CONFIGURATION"))
                 .addFields(
@@ -102,26 +81,7 @@ export class ConfigCommand extends CommandUserInteraction {
                     },
                     {
                         name: await this.localeMessage("MESSAGE_CURRENT_NOTIFICATIONS_CHANNEL"),
-                        value: `**${await this.localeMessage("RATED_DEMON")}** - <#${serverConfig.channel_awarded}>, `
-                                + `${await this.localeMessage(serverConfig.enable_awarded ? "ENABLED" : "DISABLED")}`
-                                + `\n**${await this.localeMessage("UNRATED_DEMON")}** - <#${serverConfig.channel_unrated}>, `
-                                + `${await this.localeMessage(serverConfig.enable_unrated ? "ENABLED" : "DISABLED")}`
-                                + `\n**${await this.localeMessage("UPDATED_DEMON")}** - <#${serverConfig.channel_updated}>, `
-                                + `${await this.localeMessage(serverConfig.enable_updated ? "ENABLED" : "DISABLED")}`
-                                + `\n**Easy Demon** - <#${serverConfig.channel_easy}>, `
-                                + `${await this.localeMessage(serverConfig.enable_easy ? "ENABLED" : "DISABLED")}`
-                                + `\n**Medium Demon** - <#${serverConfig.channel_medium}>, `
-                                + `${await this.localeMessage(serverConfig.enable_medium ? "ENABLED" : "DISABLED")}`
-                                + `\n**Hard Demon** - <#${serverConfig.channel_hard}>, `
-                                + `${await this.localeMessage(serverConfig.enable_hard ? "ENABLED" : "DISABLED")}`
-                                + `\n**Insane Demon** - <#${serverConfig.channel_insane}>, `
-                                + `${await this.localeMessage(serverConfig.enable_insane ? "ENABLED" : "DISABLED")}`
-                                + `\n**Extreme Demon** - <#${serverConfig.channel_extreme}>, `
-                                + `${await this.localeMessage(serverConfig.enable_extreme ? "ENABLED" : "DISABLED")}`
-                    },
-                    {
-                        name: await this.localeMessage("MESSAGE_CURRENT_MENTION"), 
-                        value: serverConfig.mention_role && serverConfig.mention_role != "0" ? `<@&${serverConfig.mention_role}>` : await this.localeMessage("NOTHING")
+                        value: `</config notification:${notificationCommandId}>`
                     }
                 );
             this.interaction.editReply({embeds: [embed]});
@@ -145,12 +105,6 @@ export class ConfigCommand extends CommandUserInteraction {
                         value: `**__/config notification__** - ${await this.localeMessage("MESSAGE_HELP_CONFIG_NOTIFICATIONS_CHANNEL")}`
                     },
                     {
-                        name: await this.localeMessage("CHANGE_NOTIFICATION_MENTION_ROLE"), 
-                        value: `**__/config mention status__** - ${await this.localeMessage("MESSAGE_HELP_CONFIG_MENTION_STATUS")}`
-                            + `\n**__/config mention enable <${await this.localeMessage("ROLE")}>__** -  ${await this.localeMessage("MESSAGE_HELP_CONFIG_MENTION_ENABLE")}`
-                            + `\n**__/config mention disable__** -  ${await this.localeMessage("MESSAGE_HELP_CONFIG_MENTION_DISABLE")}`
-                    },
-                    {
                         name: await this.localeMessage("SHOW_ALL_CONFIGURATIONS"),
                         value: `**__/config list__** - ${await this.localeMessage("MESSAGE_HELP_CONFIG_LIST")}`
                     }
@@ -159,7 +113,11 @@ export class ConfigCommand extends CommandUserInteraction {
         }
 
         if (this.interaction.options.getSubcommand() == "notification") {
-            this.interaction.editReply(await loadNotificationConfig(this, serverConfig, 0, undefined, 0));
+            if (this.interaction.guild.me.permissions.has("MANAGE_WEBHOOKS")) {
+                this.interaction.editReply(await loadNotificationConfig(this, 0, undefined, 0));
+            } else {
+                this.interaction.editReply({content: await this.localeMessage("MESSAGE_NOTIFICATIONS_INVAILD_PERMISSION", ['DemonObserver'])});
+            }
         }
     }
     
@@ -170,11 +128,7 @@ export class ConfigButton extends ButtonUserInteraction {
     async execute() {
         if (this.customData[0] == "notification") {
             if (this.customData[1] == "channel") {
-                const [[serverConfig]] = await this.connection.query(
-                    `SELECT * FROM guild_settings WHERE guild_id = '${this.interaction.guildId}'`
-                );
-                await this.interaction.deferUpdate();
-                await this.interaction.editReply(await loadNotificationConfig(this, serverConfig, +this.customData[3], 
+                await this.interaction.editReply(await loadNotificationConfig(this, +this.customData[3], 
                     this.interaction.client.channels.cache.get(this.customData[4]), +this.customData[2]));
             }
 
@@ -185,22 +139,41 @@ export class ConfigButton extends ButtonUserInteraction {
                 
                 if (score && channel) {
                     const diff = ['updated', 'extreme', 'insane', 'hard', 'medium', 'easy', 'unrated', 'awarded'];
-                    const changeResult = [];
-                    diff.forEach(d => {
-                        if (isEnableNotification(score, d)) {
-                            changeResult.push(`enable_${d} = '${isEnable ? 1 : 0}'${isEnable && channel ? `, channel_${d} = '${channel}'` : ""}`)
+
+                    const webhooks = await this.interaction.guild.fetchWebhooks();
+                    let member = this.interaction.guild.me;
+                    
+                    if (member?.permissions?.has("MANAGE_WEBHOOKS")) {
+                        try {
+                            for await (const d of diff) {
+                                if (isEnableNotification(score, d)) {
+                                    const webhookArray = webhooks.filter((webhook) => notifyChannels[d].find(c => c == webhook?.sourceChannel?.id));
+                                    for await (const [id, targetWebhook] of webhookArray) {
+                                        await targetWebhook.delete();
+                                    }
+                                    if (isEnable) {
+                                        for await (const noticeChannelId of notifyChannels[d]) {
+                                            let noticeChannel = this.interaction.client.channels.cache.get(noticeChannelId);
+                                            if (!noticeChannel && noticeChannelId != "0") {
+                                                noticeChannel = await this.interaction.client.channels.fetch(noticeChannelId);
+                                            }
+
+                                            if (noticeChannel?.type == "GUILD_NEWS") {
+                                                await noticeChannel.addFollower(channel, 'DemonObserver Notification');
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (e) {
+                            await this.interaction.editReply({ content: `Added Failed, try again later with delete all webhooks in <#${channel}>` });
+                            return;
                         }
-                    });
-                    await this.connection.query(
-                        `UPDATE guild_settings SET ${changeResult.join(", ") || `guild_id = '${this.interaction.guildId}'`} WHERE guild_id = '${this.interaction.guildId}'`
-                    );
+                    }
+
                 }
 
-                const [[serverConfig]] = await this.connection.query(
-                    `SELECT * FROM guild_settings WHERE guild_id = '${this.interaction.guildId}'`
-                );
-                await this.interaction.deferUpdate();
-                await this.interaction.editReply(await loadNotificationConfig(this, serverConfig, 0, undefined, 0));
+                await this.interaction.editReply(await loadNotificationConfig(this, 0, undefined, 0));
             }
         }
     }
@@ -211,21 +184,15 @@ export class ConfigMenu extends MenuUserInteraction {
 
     async execute() {
         if (this.customData[0] == "notification") {
-            const [[serverConfig]] = await this.connection.query(
-                `SELECT * FROM guild_settings WHERE guild_id = '${this.interaction.guildId}'`
-            );
-
             if (this.customData[1] == "channel") {
-                await this.interaction.deferUpdate();
-                await this.interaction.editReply(await loadNotificationConfig(this, serverConfig, +this.customData[2], 
+                await this.interaction.editReply(await loadNotificationConfig(this, +this.customData[2], 
                     this.interaction.client.channels.cache.get(this.interaction.values[0]), 0));
             }
 
             if (this.customData[1] == "type") {
                 let score = 0; this.interaction.values.forEach(v => score += +v);
 
-                await this.interaction.deferUpdate();
-                await this.interaction.editReply(await loadNotificationConfig(this, serverConfig, score, 
+                await this.interaction.editReply(await loadNotificationConfig(this, score, 
                     this.interaction.client.channels.cache.get(this.customData[2]), 0));
             }
         }
@@ -271,37 +238,41 @@ function isEnableNotification(score, type) {
 }
 
 
-async function loadNotificationConfig(interaction, serverConfig, selectScore, channel, page) {
-    const checkSelectMark = (demonType) => isEnableNotification(selectScore, demonType) ? '✅ ' : '◻ ';
-    const isSelect = (demonType) => isEnableNotification(selectScore, demonType);
-    const checkChannel = (demonType) => serverConfig["channel_"+demonType];
-    const checkEnableMark = async (demonType) => await interaction.localeMessage(serverConfig["enable_"+demonType] ? "ENABLED" : "DISABLED");
-    const me = channel?.guild.me;
-
+async function loadNotificationConfig(interaction, selectScore, channel, page) {
     if (!interaction.interaction.guild) {
         return {embeds: [new MessageEmbed()
             .setTitle(await interaction.localeMessage("ERROR"))
             .setColor([255,0,0])]};
     }
 
+    const me = interaction.interaction.guild.me;
+    const webhooks = await interaction.interaction.guild.fetchWebhooks();
+    const isSelect = (demonType) => isEnableNotification(selectScore, demonType);
+    const checkSelectMark = (demonType) => isSelect(demonType) ? '✅ ' : '◻ ';
+    const checkChannel = (demonType) => {
+        const webhook = webhooks.find((webhook) => notifyChannels[demonType].find(c => c == webhook?.sourceChannel?.id));
+        return webhook ? webhook.channelId : 0;
+    }
+
+
     const embed = new MessageEmbed()
         .setTitle(await interaction.localeMessage("MESSAGE_CURRENT_NOTIFICATIONS_CHANNEL"))
         .addFields(
             {
                 name: await interaction.localeMessage("CONFIGURATIONS"), 
-                value: `**`+checkSelectMark('awarded')+await interaction.localeMessage("RATED_DEMON")+`**:　${await checkEnableMark("awarded")} | <#${checkChannel("awarded")}>\n`
-                        +`**`+checkSelectMark('unrated')+await interaction.localeMessage("UNRATED_DEMON")+`**:　${await checkEnableMark("unrated")} | <#${checkChannel("unrated")}>\n`
-                        +`**`+checkSelectMark('easy')+"Easy Demon"+`**:　${await checkEnableMark("easy")} | <#${checkChannel("easy")}>\n`
-                        +`**`+checkSelectMark('medium')+"Medium Demon"+`**:　${await checkEnableMark("medium")} | <#${checkChannel("medium")}>\n`
-                        +`**`+checkSelectMark('hard')+"Hard Demon"+`**:　${await checkEnableMark("hard")} | <#${checkChannel("hard")}>\n`
-                        +`**`+checkSelectMark('insane')+"Insane Demon"+`**:　${await checkEnableMark("insane")} | <#${checkChannel("insane")}>\n`
-                        +`**`+checkSelectMark('extreme')+"Extreme Demon"+`**:　${await checkEnableMark("extreme")} | <#${checkChannel("extreme")}>\n`
-                        +`**`+checkSelectMark('updated')+await interaction.localeMessage("UPDATED_DEMON")+`**:　${await checkEnableMark("updated")} | <#${checkChannel("updated")}>`
+                value: `**`+checkSelectMark('awarded')+await interaction.localeMessage("RATED_DEMON")+`**:　<#${checkChannel("awarded")}>\n`
+                        +`**`+checkSelectMark('unrated')+await interaction.localeMessage("UNRATED_DEMON")+`**:　<#${checkChannel("unrated")}>\n`
+                        +`**`+checkSelectMark('easy')+"Easy Demon"+`**:　 <#${checkChannel("easy")}>\n`
+                        +`**`+checkSelectMark('medium')+"Medium Demon"+`**:　<#${checkChannel("medium")}>\n`
+                        +`**`+checkSelectMark('hard')+"Hard Demon"+`**:　<#${checkChannel("hard")}>\n`
+                        +`**`+checkSelectMark('insane')+"Insane Demon"+`**:　<#${checkChannel("insane")}>\n`
+                        +`**`+checkSelectMark('extreme')+"Extreme Demon"+`**:　<#${checkChannel("extreme")}>\n`
+                        +`**`+checkSelectMark('updated')+await interaction.localeMessage("UPDATED_DEMON")+`**:　<#${checkChannel("updated")}>`
             },
             {
                 name: await interaction.localeMessage("SELECTED_CHANNEL"), 
                 value: channel && me ? 
-                        `<#${channel.id}>` + ((channel.permissionsFor(me).has(["SEND_MESSAGES", "EMBED_LINKS"]) 
+                        `<#${channel.id}>` + ((me.permissions.has("MANAGE_WEBHOOKS") 
                         ? "" 
                         : `\n⚠**${await interaction.localeMessage('WARNING')}**: ${await interaction.localeMessage('MESSAGE_NOTIFICATIONS_INVAILD_PERMISSION', [me.nickname || interaction.interaction.user.username])}`)) : await interaction.localeMessage("NOTHING")
             }
