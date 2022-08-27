@@ -149,7 +149,7 @@ export class ConfigButton extends ButtonUserInteraction {
                                 if (isEnableNotification(score, d)) {
                                     const webhookArray = webhooks.filter((webhook) => notifyChannels[d].find(c => c == webhook?.sourceChannel?.id));
                                     for await (const [id, targetWebhook] of webhookArray) {
-                                        await targetWebhook.delete();
+                                        await targetWebhook.delete().catch(err => {});
                                     }
                                     if (isEnable) {
                                         for await (const noticeChannelId of notifyChannels[d]) {

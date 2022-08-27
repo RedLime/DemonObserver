@@ -103,7 +103,6 @@ export default class InteractionManager {
 
     async onClickedButton(interaction) {
         if (interaction.user.id != interaction.customId.split("||")[0]) {
-            interaction.deleteReply();
             return;
         } 
 
@@ -126,7 +125,6 @@ export default class InteractionManager {
 
     async onClickedMenu(interaction) {
         if (interaction.user.id != interaction.customId.split("||")[0]) {
-            interaction.deleteReply();
             return;
         } 
         
