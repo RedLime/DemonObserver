@@ -122,7 +122,6 @@ async function run() {
     client.on("interactionCreate", async interaction => {
         if (interaction.isCommand()) {
             interactionManager.onCommand(interaction)
-            interaction.guild.me.permissions.has("MANAGE_WEBHOOKS")
         }
         if (interaction.isButton()) {
             interactionManager.onClickedButton(interaction);

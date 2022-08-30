@@ -91,12 +91,12 @@ export default class InteractionManager {
         }
 
         // challenge
-        if (interaction.commandName == "challenge") {
+        if (interaction.commandName == "challenge" && interaction.guild) {
             new ChallengeCommand(this.connection, interaction, emojis).execute();
         }
 
         // config
-        if (interaction.commandName == "config") {
+        if (interaction.commandName == "config" && interaction.guild) {
             new ConfigCommand(this.connection, interaction, emojis).execute();
         }
     }
