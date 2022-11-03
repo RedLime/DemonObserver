@@ -108,7 +108,7 @@ export default class Notify {
 
     static async getPointercrateLevel(rank) {
         try {
-            return await (await fetch('https://pointercrate.com/api/v2/demons/listed/', { method: 'GET', body: 'limit=100&after='+(rank*100) })).json();
+            return await (await fetch('https://pointercrate.com/api/v2/demons/listed/?limit=100&after='+(rank*100))).json();
         } catch (err) {
             return [];
         }
