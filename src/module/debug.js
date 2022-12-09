@@ -2,6 +2,7 @@
 import { TextChannel } from 'discord.js';
 import settings from '../../config/settings.json' assert {type: "json"};
 import Utils from './utils.js';
+import readline from 'readline';
 
 export default class Debug {
     constructor(client) {
@@ -9,8 +10,8 @@ export default class Debug {
     }
     
     log(prefix, context, obj = null, send = true) {
-        process.stdout.clearLine(0);
-        process.stdout.cursorTo(0);
+        readline.clearLine(process.stdout, 0);
+        readline.cursorTo(process.stdout, 0, null);
         process.stdout.write(`[${this.dateFormat(new Date())}] (${prefix}) ${context}\r`);
         if (send && this.client) {
             const channel = this.client.channels.cache.get(settings.bot_log_channel);
