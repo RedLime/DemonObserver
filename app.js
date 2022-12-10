@@ -291,7 +291,7 @@ async function run() {
             cachingPointercrate();
             const levels = await Notify.getPointercrateLevel(currentPCPage);
             if (levels.length) {
-                await connection.query(levels.map((dl) => {
+                await connection.query(levels.filter(dl => dl.level_id).map((dl) => {
                     return `UPDATE gd_demons SET rank_pointercrate = '${dl.position}' WHERE level_id = '${dl.level_id}'`
                 }).join("; "));
                 debug.log("Pointercrate", `A ${levels.length} levels were cached. (Page : ${currentPCPage})`, null, false);
