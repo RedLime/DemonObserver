@@ -143,7 +143,7 @@ export class ChallengeMenu extends MenuUserInteraction {
 
 async function loadChallengeProcess(interaction, challenge) {
     const [[resultDemon]] = await interaction.connection.query(
-        `SELECT level_id, level_name, author_name, difficulty, creator_points, rank_pointercrate FROM gd_demons WHERE level_id = '${[...challenge.levels].reverse()[0]}'`
+        `SELECT level_id, level_name, author_name, difficulty, creator_points, rank_pointercrate, level_length FROM gd_demons WHERE level_id = '${[...challenge.levels].reverse()[0]}'`
     );
 
     const result = {};
@@ -169,7 +169,7 @@ async function loadChallengeProcess(interaction, challenge) {
             },
             {
                 name: await interaction.localeMessage("DIFFICULTY"), 
-                value: Demon.getDifficultyFullText(+resultDemon.difficulty)
+                value: (interaction.emojis[Demon.getTypeEmojiText(result.level_length == 5)]) + ' ' + Demon.getDifficultyFullText(+resultDemon.difficulty)
             }
         )
         .setFooter({ text: "ID : "+challenge.id });

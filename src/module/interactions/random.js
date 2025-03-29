@@ -26,7 +26,7 @@ export default class RandomCommand extends CommandUserInteraction {
         }
         
         const [resultDemons] = await this.connection.query(
-            `SELECT level_id, level_name, difficulty, creator_points, author_name, rank_pointercrate FROM gd_demons 
+            `SELECT level_id, level_name, difficulty, creator_points, author_name, rank_pointercrate, level_length FROM gd_demons 
              WHERE ${option ? 'difficulty='+Demon.getDifficultyNumber(option) : 1} ${demonListRange ? 'AND '+demonListRange() : ''} ${!type ? '' : `AND level_length ${type == 1 ? '< 5' : '= 5'}`} ORDER BY RAND() LIMIT ${drawOption}`
             );
             
@@ -67,7 +67,7 @@ export default class RandomCommand extends CommandUserInteraction {
                     },
                     {
                         name: await this.localeMessage("DIFFICULTY"), 
-                        value: Demon.getDifficultyFullText(resultDemon.difficulty)
+                        value: this.emojis[Demon.getTypeEmojiText(resultDemon.level_length == 5)] + ' ' + Demon.getDifficultyFullText(resultDemon.difficulty)
                     }
                 );
             if (dlOption) {

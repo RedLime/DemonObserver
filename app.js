@@ -170,7 +170,7 @@ async function run() {
                 if (result.length > 0) {
                 
                     const updateList = [];
-                    const [levels] = await connection.query('SELECT level_id, difficulty, level_version FROM `gd_demons` WHERE level_id IN ('+ result.map(level => level.id).join(",") +')');
+                    const [levels] = await connection.query('SELECT level_id, difficulty, level_version, level_length FROM `gd_demons` WHERE level_id IN ('+ result.map(level => level.id).join(",") +')');
             
                     //Level Update Check
                     for await (const element of levels) {

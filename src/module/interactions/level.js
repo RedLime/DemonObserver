@@ -4,7 +4,10 @@ import Demon from "../../classes/demon.js";
 import { ButtonUserInteraction, CommandUserInteraction, MenuUserInteraction } from "../../classes/interaction.js";
 import { NotificationType } from "../../classes/notification.js";
 import Utils from "../utils.js";
+import path from 'path';
+import fs from 'fs';
 
+const emojis = JSON.parse(fs.readFileSync(path.resolve('./config/emojis.json'), 'utf8'));
 
 
 export class LevelCommand extends CommandUserInteraction {
@@ -23,7 +26,7 @@ export class LevelCommand extends CommandUserInteraction {
         }
         
         const [resultDemon] = await this.connection.query(
-            `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE ${level_id ? `level_id = ${level_id}` : level_name ? `TRIM(level_name) LIKE TRIM('${level_name}')` : "level_id = 0"} LIMIT 10`
+            `SELECT level_id, level_name, author_name, level_description, level_length, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE ${level_id ? `level_id = ${level_id}` : level_name ? `LOWER(RTRIM(level_name)) LIKE LOWER(RTRIM('${level_name}'))` : "level_id = 0"} LIMIT 10`
         );
 
         if (!resultDemon.length) {
@@ -86,7 +89,7 @@ export class LevelButton extends ButtonUserInteraction {
     async execute() {
         const page = +this.customData[0], level_id = +this.customData[1];
         const [[resultDemon]] = await this.connection.query(
-            `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE level_id = '${level_id}'`
+            `SELECT level_id, level_name, author_name, level_description, level_length, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE level_id = '${level_id}'`
         );
         this.interaction.editReply(await loadLevelInfo(this, resultDemon, page));
     }
@@ -99,14 +102,14 @@ export class LevelMenu extends MenuUserInteraction {
         if (this.customData[0] == "level_list") {
             const level_id = +this.interaction.values[0];
             const [[resultDemon]] = await this.connection.query(
-                `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE level_id = '${level_id}'`
+                `SELECT level_id, level_name, author_name, level_description, level_length, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE level_id = '${level_id}'`
             );
             this.interaction.editReply(await loadLevelInfo(this, resultDemon, 0));
         }
         if (this.customData[0] == "page") {
             const level_id = +this.customData[1];
             const [[resultDemon]] = await this.connection.query(
-                `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE level_id = '${level_id}'`
+                `SELECT level_id, level_name, author_name, level_description, level_length, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE level_id = '${level_id}'`
             );
             this.interaction.editReply(await loadLevelInfo(this, resultDemon, +this.interaction.values[0]));
         }
@@ -167,7 +170,7 @@ async function loadLevelInfo(interaction, level, page) {
             },
             {
                 name: await interaction.localeMessage("DIFFICULTY"), 
-                value: Demon.getDifficultyFullText(level.difficulty)
+                value: emojis[Demon.getTypeEmojiText(level.level_length == 5)] + ' ' + Demon.getDifficultyFullText(level.difficulty)
             },
             {
                 name: await interaction.localeMessage("VERSION"), 

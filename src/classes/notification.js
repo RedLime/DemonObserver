@@ -5,12 +5,6 @@ import * as Locale from '../module/localize.js'
 import path from 'path';
 import fs from 'fs';
 
-// export interface Notification {
-//     demon: Demon | RowDataPacket
-//     getType(): NotificationType
-//     convertEmbed(connection: mysql.Pool, guild_id: string | number): Promise<Discord.MessageEmbed>
-// }
-
 const emojis = JSON.parse(fs.readFileSync(path.resolve('./config/emojis.json'), 'utf8'));
 
 export class AwardNotification {
@@ -34,7 +28,7 @@ export class AwardNotification {
             },
             {
                 name: Locale.getLocaleMessage(0, "DIFFICULTY"),
-                value: this.demon.getDifficultyFullText()
+                value: (emojis[this.demon.getTypeEmojiText()]) + ' ' + this.demon.getDifficultyFullText()
             },
         )
         .setColor('#ffd359')
@@ -114,7 +108,7 @@ export class RerateNotification {
             },
             {
                 name: Locale.getLocaleMessage(0, "DIFFICULTY"),
-                value: `~~${Demon.getDifficultyFullText(this.prevDifficulty)}~~ ${emojis['ARROW']} ${Demon.getDifficultyFullText(this.currDifficulty)}`
+                value: `${(emojis[this.demon.getTypeEmojiText()])} ~~${Demon.getDifficultyFullText(this.prevDifficulty)}~~ ${emojis['ARROW']} ${Demon.getDifficultyFullText(this.currDifficulty)}`
             }
         )
         .setColor('#ae52ff')

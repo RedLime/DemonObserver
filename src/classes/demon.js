@@ -92,4 +92,12 @@ export default class Demon {
     getRateBrowserText() {
         return Demon.getRateBrowserText(this.difficulty, this.cp);
     }
+
+    static getTypeEmojiText(isPlatformer) {
+        return isPlatformer ? 'RATED_PLAT' : 'RATED';
+    }
+
+    getTypeEmojiText() {
+        return Demon.getTypeEmojiText(this.length == 5);
+    }
 }
