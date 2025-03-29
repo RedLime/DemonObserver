@@ -70,7 +70,7 @@ export default class Demon {
     }
 
     static getLengthText(length) {
-        return ['Tiny', 'Short', 'Medium', 'Long', 'XL'][length];
+        return ['Tiny', 'Short', 'Medium', 'Long', 'XL', 'Platformer'][length];
     }
 
     getLengthText() {
