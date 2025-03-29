@@ -90,7 +90,7 @@ export default class DemonsCommand extends CommandUserInteraction {
 
             const chart = this.getStackedChart();
             demonCounts.forEach((element, index) => {
-                chart.chartConfig.data.datasets.push({ label: ""+element.creator_points, data: [element['easy'], element['medium'], element['hard'], element['insane'], element['extreme']], backgroundColor: chart.backgroundColor[index] });
+                chart.chartConfig.data.datasets.push({ label: "CP "+element.creator_points, data: [element['easy'], element['medium'], element['hard'], element['insane'], element['extreme']], backgroundColor: chart.backgroundColor[index] });
             });
 
             const image = await chart.chart.renderToBuffer(chart.chartConfig, 'image/jpeg');

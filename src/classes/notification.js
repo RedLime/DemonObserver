@@ -2,12 +2,16 @@ import Demon from "./demon.js";
 import config from '../../config/settings.json' assert {type: "json"};
 import Discord from "discord.js";
 import * as Locale from '../module/localize.js'
+import path from 'path';
+import fs from 'fs';
 
 // export interface Notification {
 //     demon: Demon | RowDataPacket
 //     getType(): NotificationType
 //     convertEmbed(connection: mysql.Pool, guild_id: string | number): Promise<Discord.MessageEmbed>
 // }
+
+const emojis = JSON.parse(fs.readFileSync(path.resolve('./config/emojis.json'), 'utf8'));
 
 export class AwardNotification {
     constructor(demon, count) {
@@ -110,7 +114,7 @@ export class RerateNotification {
             },
             {
                 name: Locale.getLocaleMessage(0, "DIFFICULTY"),
-                value: `~~${Demon.getDifficultyFullText(this.prevDifficulty)}~~ <:pointer:861423467119247372> ${Demon.getDifficultyFullText(this.currDifficulty)}`
+                value: `~~${Demon.getDifficultyFullText(this.prevDifficulty)}~~ ${emojis['ARROW']} ${Demon.getDifficultyFullText(this.currDifficulty)}`
             }
         )
         .setColor('#ae52ff')

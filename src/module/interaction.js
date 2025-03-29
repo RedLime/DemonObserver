@@ -12,31 +12,7 @@ import { ConfigButton, ConfigCommand, ConfigMenu } from './interactions/config.j
 var lastLogMessage = ``;
 
 const emojis = {
-    RATED: sampleEmojis.RATED,
-    UNRATED: sampleEmojis.UNRATED,
-    EASY_DEMON: sampleEmojis.EASY_DEMON,
-    EASY_DEMON_FEATURED: sampleEmojis.EASY_DEMON_FEATURED,
-    EASY_DEMON_EPIC: sampleEmojis.EASY_DEMON_EPIC,
-    MEDIUM_DEMON: sampleEmojis.MEDIUM_DEMON,
-    MEDIUM_DEMON_FEATURED: sampleEmojis.MEDIUM_DEMON_FEATURED,
-    MEDIUM_DEMON_EPIC: sampleEmojis.MEDIUM_DEMON_EPIC,
-    HARD_DEMON: sampleEmojis.HARD_DEMON,
-    HARD_DEMON_FEATURED: sampleEmojis.HARD_DEMON_FEATURED,
-    HARD_DEMON_EPIC: sampleEmojis.HARD_DEMON_EPIC,
-    INSANE_DEMON: sampleEmojis.INSANE_DEMON,
-    INSANE_DEMON_FEATURED: sampleEmojis.INSANE_DEMON_FEATURED,
-    INSANE_DEMON_EPIC: sampleEmojis.INSANE_DEMON_EPIC,
-    EXTREME_DEMON: sampleEmojis.EXTREME_DEMON,
-    EXTREME_DEMON_FEATURED: sampleEmojis.EXTREME_DEMON_FEATURED,
-    EXTREME_DEMON_EPIC: sampleEmojis.EXTREME_DEMON_EPIC,
-    ARROW: sampleEmojis.ARROW,
-    NEXT_PAGE: sampleEmojis.NEXT_PAGE,
-    PREVIOUS_PAGE: sampleEmojis.PREVIOUS_PAGE,
-    UP: sampleEmojis.UP,
-    DOWN: sampleEmojis.DOWN,
-    GOLD_TROPY: sampleEmojis.GOLD_TROPY,
-    EDIT: sampleEmojis.EDIT,
-    CP: sampleEmojis.CP,
+    ...sampleEmojis,
     id: {
         NEXT_PAGE: sampleEmojis.NEXT_PAGE,
         PREVIOUS_PAGE: sampleEmojis.PREVIOUS_PAGE

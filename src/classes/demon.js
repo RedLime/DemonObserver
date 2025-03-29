@@ -1,7 +1,7 @@
 export default class Demon {
     
     constructor(lvl, authorName) {
-        const creatorPoint = (+lvl[18] > 0 ? 1 : 0) + (+lvl[19] > 0 ? 1 : 0) + (+lvl[42] > 0 ? 1 : 0);
+        const creatorPoint = (+lvl[18] > 0 ? 1 : 0) + (+lvl[19] > 0 ? 1 : 0) + (+lvl[42] > 0 ? +lvl[42] : 0);
         this.id = +lvl[1];
         this.name = lvl[2];
         this.description = Buffer.from((lvl[3] || ""), "base64").toString() || "";
@@ -78,7 +78,7 @@ export default class Demon {
     }
 
     static getRateText(cp) {
-        return ['', '', 'Featured', 'Epic'][cp];
+        return ['', '', 'Featured', 'Epic', 'Legendary', 'Mythic'][cp];
     }
 
     getRateText() {
