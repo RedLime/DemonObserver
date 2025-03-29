@@ -10,6 +10,7 @@ export default class RandomCommand extends CommandUserInteraction {
         let drawOption = this.interaction.options.getInteger("draw") ?? 1;
         drawOption = (drawOption < 1 ? 1 : drawOption > 10 ? 10 : drawOption);
         const dlOption = this.interaction.options.getString("demonlist");
+        const type = this.interaction.options.getInteger("type") || 0;
 
         var demonListRange = undefined;
         if (dlOption) {
@@ -26,7 +27,7 @@ export default class RandomCommand extends CommandUserInteraction {
         
         const [resultDemons] = await this.connection.query(
             `SELECT level_id, level_name, difficulty, creator_points, author_name, rank_pointercrate FROM gd_demons 
-             WHERE ${option ? 'difficulty='+Demon.getDifficultyNumber(option) : 1} ${demonListRange ? 'AND '+demonListRange() : ''} ORDER BY RAND() LIMIT ${drawOption}`
+             WHERE ${option ? 'difficulty='+Demon.getDifficultyNumber(option) : 1} ${demonListRange ? 'AND '+demonListRange() : ''} ${!type ? '' : `AND level_length ${type == 1 ? '< 5' : '= 5'}`} ORDER BY RAND() LIMIT ${drawOption}`
             );
             
 

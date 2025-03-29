@@ -47,6 +47,25 @@
                             "value": "2"
                         }
                     ]
+                },
+                {
+                    "name": "type",
+                    "description": "Challenge Demon Type",
+                    "type": 4,
+                    "choices": [
+                        {
+                            "name": "All",
+                            "value": 0
+                        },
+                        {
+                            "name": "Classic",
+                            "value": 1
+                        },
+                        {
+                            "name": "Platformer",
+                            "value": 2
+                        }
+                    ]
                 }
             ]
         },

@@ -2,7 +2,7 @@ import Demon from "./demon.js";
 
 
 export default class Challenge {
-    constructor(connection, id, owner, status, levels, filter, currSkips, maxSkips, createDate, score) {
+    constructor(connection, id, owner, status, levels, filter, currSkips, maxSkips, levelType, createDate, score) {
         this.connection = connection;
         this.id = id;
         this.owner = owner;
@@ -11,22 +11,23 @@ export default class Challenge {
         this.filter = filter;
         this.currSkips = currSkips;
         this.maxSkips = maxSkips;
+        this.levelType = levelType;
         this.createDate = createDate;
         this.score = score;
     }
 
-    static async create(connection, user, filter, skips = 0) {
+    static async create(connection, user, filter, type, skips = 0) {
         const [result] = await connection.query(
-            `INSERT INTO challenges (demon_filter, user, max_skips) VALUES ('${filter}', '${user}', '${skips}')`
+            `INSERT INTO challenges (demon_filter, user, level_type, max_skips) VALUES ('${filter}', '${user}', '${type}', '${skips}')`
         );
-        return new Challenge(connection, +result.insertId, user, ChallengeStatus.PROCESS, "", filter, 0, skips, new Date(), 0);
+        return new Challenge(connection, +result.insertId, user, ChallengeStatus.PROCESS, "", filter, 0, skips, type, new Date(), 0);
     }
     static async findById(connection, id) {
         const [result] = await connection.query(
             `SELECT * FROM challenges WHERE challenge_id = '${id}'`
         );
         if (result.length) {
-            return new Challenge(connection, id, result[0].user, result[0].status, result[0].levels, result[0].demon_filter, result[0].current_skips, result[0].max_skips, new Date(Date.parse(result[0].created_timestamp)), result[0].score);
+            return new Challenge(connection, id, result[0].user, result[0].status, result[0].levels, result[0].demon_filter, result[0].current_skips, result[0].max_skips, result[0].level_type, new Date(Date.parse(result[0].created_timestamp)), result[0].score);
         } else {
             return undefined;
         }
@@ -36,7 +37,7 @@ export default class Challenge {
             `SELECT * FROM challenges WHERE user = '${user}' AND status = '${ChallengeStatus.PROCESS}'`
         );
         if (result.length) {
-            return new Challenge(connection, result[0].challenge_id, user, result[0].status, result[0].levels, result[0].demon_filter, result[0].current_skips, result[0].max_skips, new Date(Date.parse(result[0].created_timestamp)), result[0].score);
+            return new Challenge(connection, result[0].challenge_id, user, result[0].status, result[0].levels, result[0].demon_filter, result[0].current_skips, result[0].max_skips, result[0].level_type, new Date(Date.parse(result[0].created_timestamp)), result[0].score);
         } else {
             return undefined;
         }
@@ -48,12 +49,13 @@ export default class Challenge {
     }
 
     getFilterString() {
+        const typeFilter = !this.levelType ? '' : this.levelType == 1 ? ' AND level_length < 5' : ' AND level_length = 5'
         if (this.filter == ChallengeFilter.ALL) {
-            return '1';
+            return '1' + typeFilter;
         } else if (this.filter == ChallengeFilter.POINTERCRATE) {
             return `rank_pointercrate > 0`
         } else {
-            return `difficulty = ${this.filter}`
+            return `difficulty = ${this.filter}${typeFilter}`
         }
     }
 

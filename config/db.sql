@@ -14,6 +14,7 @@ CREATE TABLE `challenges` (
   `status` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
   `current_skips` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
   `max_skips` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
+  `level_type` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
   `levels` text DEFAULT NULL,
   `score` int(10) UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

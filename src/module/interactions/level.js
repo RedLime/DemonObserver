@@ -23,15 +23,13 @@ export class LevelCommand extends CommandUserInteraction {
         }
         
         const [resultDemon] = await this.connection.query(
-            `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons
-             WHERE ${level_id ? `level_id = ${level_id}` : level_name ? `TRIM(TRAILING FROM level_name) LIKE TRIM(TRAILING FROM '${level_name}')` : "level_id = 0"} LIMIT 10`
+            `SELECT level_id, level_name, author_name, level_description, difficulty, creator_points, rank_pointercrate, level_version, ingame_version FROM gd_demons WHERE ${level_id ? `level_id = ${level_id}` : level_name ? `TRIM(level_name) LIKE TRIM('${level_name}')` : "level_id = 0"} LIMIT 10`
         );
 
         if (!resultDemon.length) {
             if (!level_id && level_name) {
                 const [searchDemons] = await this.connection.query(
-                    `SELECT level_id, level_name, author_name FROM gd_demons
-                     WHERE level_name LIKE '%${level_name}%' LIMIT 10`
+                    `SELECT level_id, level_name, author_name FROM gd_demons WHERE level_name LIKE '%${level_name}%' LIMIT 10`
                 );
                 
                 if (searchDemons.length) {

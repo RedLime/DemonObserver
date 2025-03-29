@@ -11,6 +11,7 @@ export class ChallengeCommand extends CommandUserInteraction {
         const subCommand = this.interaction.options.getSubcommand();
         if (subCommand == "create") {
             const filter = +(this.interaction.options.getString("filter") ?? "1"), skips = Math.max(Math.min(this.interaction.options.getInteger("skips") || 0, 10), 0);
+            const levelType = this.interaction.options.getInteger("type") || 0;
             const lastChallenge = await Challenge.findCurrentByUser(this.connection, this.interaction.user.id);
             if (!lastChallenge) {
                 const embed = new MessageEmbed()
@@ -20,7 +21,7 @@ export class ChallengeCommand extends CommandUserInteraction {
                 const nextChallenge = new MessageButton()
                     .setStyle('SUCCESS')
                     .setLabel(await this.localeMessage("NEXT_CHALLENGE"))
-                    .setCustomId(`${this.interaction.user.id}||challenge:create:${filter}:${skips}`);
+                    .setCustomId(`${this.interaction.user.id}||challenge:create:${filter}:${skips}:${levelType}`);
                 const actionRow = new MessageActionRow().addComponents([nextChallenge]);
                 this.interaction.editReply({ embeds: [embed], components: [actionRow] });
             } else {
@@ -31,7 +32,7 @@ export class ChallengeCommand extends CommandUserInteraction {
                 const createChallenge = new MessageButton()
                     .setStyle('SUCCESS')
                     .setLabel(await this.localeMessage("START"))
-                    .setCustomId(`${this.interaction.user.id}||challenge:creat:${filter}:${skips}`);
+                    .setCustomId(`${this.interaction.user.id}||challenge:create:${filter}:${skips}:${levelType}`);
                 const loadChallenge = new MessageButton()
                     .setStyle('DANGER')
                     .setLabel(await this.localeMessage("LOAD_PREVIOUS_CHALLENGE"))
@@ -67,7 +68,7 @@ export class ChallengeButton extends ButtonUserInteraction {
             const lastChallenge = await Challenge.findCurrentByUser(this.connection, this.interaction.user.id);
             if (lastChallenge) lastChallenge.stopChallenge();
 
-            const challenge = await Challenge.create(this.connection, this.interaction.user.id, +this.customData[1], +this.customData[2]);
+            const challenge = await Challenge.create(this.connection, this.interaction.user.id, +this.customData[1], +this.customData[2], +this.customData[3]);
             await challenge.nextLevel();
             this.interaction.editReply(await loadChallengeProcess(this, challenge));
         }
