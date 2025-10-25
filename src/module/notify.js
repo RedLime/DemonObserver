@@ -55,10 +55,9 @@ export default class Notify {
 
     static async getGJLevels(filter) {
         filter.secret = 'Wmfd2893gb7';
-        filter.gameVersion ||= 21;
-        filter.binaryVersion ||= 35;
+        filter.gameVersion ||= 22;
+        filter.binaryVersion ||= 42;
         filter.gdw ||= 0;
-        filter.len ||= "-";
         filter.total ||= 0;
         filter.uncompleted ||= 0;
         filter.onlyCompleted ||= 0;
@@ -98,7 +97,7 @@ export default class Notify {
                     levelData[+levelRaw[i]] = levelRaw[i+1];
                 }
                 return levelData;
-            }).map((lvl) => new Demon(lvl, authorList[lvl[6]] ?? "-")).filter((lvl) => lvl != null);
+            }).filter(lvl => lvl[17] == "1").map((lvl) => new Demon(lvl, authorList[lvl[6]] ?? "-")).filter((lvl) => lvl != null);
     
             return result;
         } catch (err) {
